@@ -9,7 +9,14 @@ website:
       - href: index.qmd
         text: Home
       - about.qmd
-      - code/SNF_draft/YUMM_vs_YUMMER/vis_de.qmd
+      - text: "Analysis"
+        menu:
+          - code/SNF_draft/YUMM_vs_YUMMER/vis_de.qmd
+    tools:
+      - icon: github
+        menu:
+          - text: Source Code
+            url:  https://github.com/almutlue/LECs_tumor
 
 format:
   html:

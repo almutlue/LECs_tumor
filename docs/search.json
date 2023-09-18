@@ -1,5 +1,19 @@
 [
   {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "YUMM –&gt; cold tumor YUMMER –&gt; hot tumor/very active immune response"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "LECs_tumor",
+    "section": "",
+    "text": "Study LEC migration within lymphatic system in the context of “hot” and “cold” tumor"
+  },
+  {
     "objectID": "code/SNF_draft/YUMM_vs_YUMMER/vis_de.html",
     "href": "code/SNF_draft/YUMM_vs_YUMMER/vis_de.html",
     "title": "vis_de",
@@ -19,19 +33,5 @@
     "title": "vis_de",
     "section": "",
     "text": "To get an overview of the distribution of cluster in 2d.\n\nDimPlot(seurat, label = TRUE)\n\n\n\n\n\n\nPlot most differentially expressed genes as volcano plot. We don’t have stats for all, but only DE genes (yet). This explains the shape of the volcano.\n\n\nCode\ncluster &lt;- levels(as.factor(de_genes$cluster))\n\n\n\n01234567\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\n\n\n\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\n\n\n\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\n\n\n\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\n\n\n\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\n\n\n\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\nWarning: ggrepel: 18 unlabeled data points (too many overlaps). Consider\nincreasing max.overlaps\n\n\n\n\n\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\n\n\n\n\n\n\n\nCode\ndf &lt;- filter(de_genes, cluster == c)\n.volcano(df, title = c, fdr = 0.1, lfc = 0.5) +\n  theme(legend.position = 'top')\n\n\n\n\n\n\n\n\n\n\n\nShow the expression of the top cluster-specific DE genes on the UMAP plot\n\n01234567\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n[1] \"No de genes\"\n\n\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.feature_c(seu = seurat, c=c)\n\n\n[1] \"No de genes\"\n\n\n\n\n\n\n\n\nThe same as above, but as violin plot to better see expression level\n\n01234567\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\nThe default behaviour of split.by has changed.\nSeparate violin plots are now plotted side-by-side.\nTo restore the old behaviour of a single split violin,\nset split.plot = TRUE.\n      \nThis message will be shown once per session.\n\n\n\n\n\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\n[1] \"No de genes\"\n\n\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\n\n\n\n\n\n\n\nCode\n.violin_c(seu = seurat, c=c)\n\n\n[1] \"No de genes\"\n\n\n\n\n\n\n\n\n\n\nCode\npurrr::map(cluster, \\(c) {\n      de_c &lt;- de_genes |&gt; \n        filter(cluster %in% c)\n      sub &lt;- subset(x = seurat, idents = c)\n      mtx &lt;- GetAssayData(object = sub, slot = 'data')\n      cd &lt;- data.frame(sub[[]] |&gt; select('Condition'))\n      .heatmap(mtx, de_c, cd, title = paste0('DE YUMM vs YUMMER in ', c),\n        fdr = 0.1, n_lfc = 20)\n})\n\n\n\n\n\n\n\n\n[1] \"No de genes\"\n\n\n\n\n\n\n\n\n\n\n\n[1] \"No de genes\"\n\n\n\n\n\n[[1]]\n\n[[2]]\n\n[[3]]\n[1] \"No de genes\"\n\n[[4]]\n\n[[5]]\n\n[[6]]\n\n[[7]]\n\n[[8]]\n[1] \"No de genes\""
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "YUMM –&gt; cold tumor YUMMER –&gt; hot tumor/very active immune response"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "LECs_tumor",
-    "section": "",
-    "text": "Study LEC migration within lymphatic system in the context of “hot” and “cold” tumor"
   }
 ]
