@@ -1,0 +1,245 @@
+---
+title: "vis_de"
+editor: visual
+---
+
+# Visualize Differential expression
+
+Different visualization of the results from clusterwise DE analysis between merged LECs in all YUMM and YUMMER sample. DE was performed as part of a preliminary analysis of BD RHapsody sequencing data conducted by the FCGZ.
+
+### Important considerations:
+
+-   Preliminary analysis identified 7 cluster. That is probably to many. We would expect 3-5 different LEC subpopulations. Ultimately we will probably recluster or merge cluster based on marker gene expression before DE analysis is conducted.
+
+-   There are 2 result gene lists:
+
+    -   **Conserved marker**: Cluster marker genes (DE compared to other cluster) conserved across conditions. Cluster marker that are independent of the tumor type. These can be used to characterize/annotate cluster within the merged/integrated dataset.
+
+    -   **DE genes:** Differentially expressed genes between conditions (YUMM vs YUMMER) within each cluster ("Celltype-specific changes").
+
+-   **Meaning in output table:**
+
+    -   **condition_pct.1:** percentage of cells where the gene is detected in the cluster for condition
+
+    -   **condition_pct.2:** percentage of cells where the gene is detected on average in the other clusters for condition
+
+### Open Questions:
+
+-   Do we expect specific LEC subtypes to change more between tumor types or do we expect more global changes across all LECs? It could be worth running a DE analysis for all LECs between the tumor types if the later is the case.
+
+-   Differential abundance analysis: Do we expect a gloabl shift in LEC abundance or a subtype-specific shift?
+
+## Preamble
+
+```{r}
+#| label: load-libs
+#| echo: true
+#| output: false
+
+library(edgeR)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scuttle)
+library(pheatmap)
+library(patchwork)
+library(Seurat)
+library(readxl)
+library(ggbeeswarm)
+library(EnhancedVolcano)
+library(SingleCellExperiment)
+library(gridExtra)
+
+```
+
+### Data
+
+```{r}
+#| label: load-data
+seurat <- readRDS(file.path("..", "..", "..", "data", "scData.rds"))
+DefaultAssay(seurat) <- "SCT"
+de_genes <- read_excel(file.path("..", "..", "..", "data", "diffGenes_yumm_yummer.xlsx"))
+
+```
+
+### Utils
+
+```{r}
+#| label: volcano
+#| code-fold: true
+
+# volcano plot function as defined in https://github.com/HelenaLC/TLS-Silina/blob/main/code/geo-02-differential.qmd
+
+.volcano <- \(df, title, fdr = 0.05, lfc = 1) {
+  EnhancedVolcano(df, 
+    x = "avg_log2FC", y = "p_val_adj",
+    FCcutoff = lfc, pCutoff = fdr,
+    pointSize = 1.7, raster = TRUE,
+    title = title, subtitle = NULL,
+    lab = df[["gene"]], labSize = 4, 
+    drawConnectors = TRUE, widthConnectors = 0.5) +
+  guides(col = guide_legend(override.aes = list(alpha = 1, size = 5))) +
+  theme_bw(9) + theme(
+    aspect.ratio = 1,
+    legend.title = element_blank(),
+    panel.grid.minor = element_blank())
+}
+
+.heatmap <- \(mtx, de_genes, cd, title, fdr = 0.05, n_lfc = 20) {
+  top <- de_genes %>%
+    filter(p_val_adj < fdr) |> 
+    slice_max(abs(avg_log2FC), n = n_lfc)
+  mtx_sub <- log1p(mtx[top$gene,])
+  if (length(top$gene) < 2){
+    return(print("No de genes"))
+  }else{
+  hm <- pheatmap(mtx_sub, 
+      main = title, fontsize = 6,
+      col = rev(hcl.colors(51, "RdBu")),
+      scale = "row", show_colnames = FALSE, annotation_col = cd)
+  hm
+  }
+}
+
+
+.feature_c <- \(seu, c, fdr = 0.05, n_lfc = 5) {
+  top <- de_genes %>%
+    filter(cluster %in% c) |> 
+    filter(p_val_adj < fdr) |> 
+    slice_max(abs(avg_log2FC), n = n_lfc)
+  if (length(top$gene) < 2){
+    return(print("No de genes"))
+  }else{
+  p <- FeaturePlot(seurat, features = top$gene, split.by = 'Condition',
+              max.cutoff = 3, cols = c('grey', 'red'))
+  p
+  }
+}
+
+.violin_c <- \(seu, c, fdr = 0.05, n_lfc = 5) {
+  top <- de_genes %>%
+    filter(cluster %in% c) |> 
+    filter(p_val_adj < fdr) |> 
+    slice_max(abs(avg_log2FC), n = n_lfc)
+  if (length(top$gene) < 2){
+    return(print("No de genes"))
+  }else{
+  p <- VlnPlot(seurat, features = top$gene, split.by = 'Condition',
+              group.by = "ident", pt.size = 0, combine = FALSE)
+  wrap_plots(plots = p, ncol = 1)
+  }
+}
+```
+
+## Visualization
+
+To get an overview of the distribution of cluster in 2d.
+
+```{r fig.width=4, fig.height=4}
+
+DimPlot(seurat, label = TRUE)
+```
+
+### Volcano
+
+Plot most differentially expressed genes as volcano plot. We don't have stats for all, but only DE genes (yet). This explains the shape of the volcano.
+
+```{r}
+#| label: dimplot
+#| code-fold: true
+
+cluster <- levels(as.factor(de_genes$cluster))
+```
+
+::: panel-tabset
+```{r}
+#| output: asis
+
+res <- purrr::map_chr(cluster, \(c) {
+  knitr::knit_child(text = c(
+      "## `r c`",
+      "", 
+      "```{r fig.width=3, fig.height=4}",
+      "#| echo: true",
+      "#| code-fold: true",
+      "df <- filter(de_genes, cluster == c)",
+      ".volcano(df, title = c, fdr = 0.1, lfc = 0.5) +",
+      "  theme(legend.position = 'top')",
+      "```",
+      "",
+      ""
+    ), envir = environment(), quiet = TRUE)
+})
+
+cat(res, sep = '\n')
+```
+:::
+
+### Dimplots
+
+Show the expression of the top cluster-specific DE genes on the UMAP plot
+
+::: panel-tabset
+```{r fig.width=6, fig.height=14}
+#| output: asis
+
+res <- purrr::map_chr(cluster, \(c) {
+  knitr::knit_child(text = c(
+      "## `r c`",
+      "", 
+      "```{r fig.width=6, fig.height=14}",
+      "#| echo: true",
+      "#| code-fold: true",
+      ".feature_c(seu = seurat, c=c)",
+      "```",
+      "",
+      ""
+    ), envir = environment(), quiet = TRUE)
+})
+
+cat(res, sep = '\n')
+```
+:::
+
+### Violin plots
+
+The same as above, but as violin plot to better see expression level
+
+::: panel-tabset
+```{r fig.width=6, fig.height=14}
+#| output: asis
+
+res <- purrr::map_chr(cluster, \(c) {
+  knitr::knit_child(text = c(
+      "## `r c`",
+      "", 
+      "```{r fig.width=8, fig.height=10}",
+      "#| echo: true",
+      "#| code-fold: true",
+      ".violin_c(seu = seurat, c=c)",
+      "```",
+      "",
+      ""
+    ), envir = environment(), quiet = TRUE)
+})
+
+cat(res, sep = '\n')
+```
+:::
+
+### Heatmaps
+
+```{r fig.width=7, fig.height=5}
+#| label: heatmaps
+#| code-fold: true
+
+purrr::map(cluster, \(c) {
+      de_c <- de_genes |> 
+        filter(cluster %in% c)
+      sub <- subset(x = seurat, idents = c)
+      mtx <- GetAssayData(object = sub, slot = 'data')
+      cd <- data.frame(sub[[]] |> select('Condition'))
+      .heatmap(mtx, de_c, cd, title = paste0('DE YUMM vs YUMMER in ', c),
+        fdr = 0.1, n_lfc = 20)
+})
+```
