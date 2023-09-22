@@ -124,13 +124,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-analysis" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
- <span class="menu-text">Analysis</span>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-differential-expression" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Differential expression</span>
     </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-analysis">    
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-differential-expression">    
         <li>
-    <a class="dropdown-item" href="../../../code/SNF_draft/YUMM_vs_YUMMER/vis_de.html" rel="" target="">
+    <a class="dropdown-item" href="../../../code/SNF_draft/DE/vis_de_LEC_YUMM_YUMMER.html" rel="" target="">
  <span class="dropdown-text">vis_de</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-exploratory-data-anaylsis" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Exploratory data anaylsis</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-exploratory-data-anaylsis">    
+        <li>
+    <a class="dropdown-item" href="../../../code/SNF_draft/EDA/vis_LECs_all.html" rel="" target="">
+ <span class="dropdown-text">vis_LEC_tumor_skin</span></a>
   </li>  
     </ul>
   </li>
@@ -246,7 +257,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>seurat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">".."</span>, <span class="st">".."</span>, <span class="st">".."</span>, <span class="st">"data"</span>, <span class="st">"scData.rds"</span>))</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>seurat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(<span class="st">".."</span>, <span class="st">".."</span>, <span class="st">".."</span>, <span class="st">"data"</span>, <span class="st">"scData_LEC_tumor.rds"</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DefaultAssay</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"SCT"</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>de_genes <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="fu">file.path</span>(<span class="st">".."</span>, <span class="st">".."</span>, <span class="st">".."</span>, <span class="st">"data"</span>, <span class="st">"diffGenes_yumm_yummer.xlsx"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -327,7 +338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="384"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="384"></p>
 </div>
 </div>
 <section id="volcano" class="level3">
@@ -351,7 +362,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'top'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -364,7 +375,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'top'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -377,7 +388,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'top'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -390,7 +401,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'top'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -403,7 +414,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'top'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -420,7 +431,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 increasing max.overlaps</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -433,7 +444,7 @@ increasing max.overlaps</code></pre>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'top'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -446,7 +457,7 @@ increasing max.overlaps</code></pre>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">'top'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="288"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="288"></p>
 </div>
 </div>
 </div>
@@ -466,7 +477,7 @@ increasing max.overlaps</code></pre>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.feature_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="576"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 </div>
@@ -477,7 +488,7 @@ increasing max.overlaps</code></pre>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.feature_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="576"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 </div>
@@ -499,7 +510,7 @@ increasing max.overlaps</code></pre>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.feature_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="576"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 </div>
@@ -510,7 +521,7 @@ increasing max.overlaps</code></pre>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.feature_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="576"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 </div>
@@ -521,7 +532,7 @@ increasing max.overlaps</code></pre>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.feature_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="576"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 </div>
@@ -532,7 +543,7 @@ increasing max.overlaps</code></pre>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.feature_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="576"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 </div>
@@ -571,7 +582,7 @@ set split.plot = TRUE.
 This message will be shown once per session.</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="768"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </div>
@@ -582,7 +593,7 @@ This message will be shown once per session.</code></pre>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.violin_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="768"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </div>
@@ -604,7 +615,7 @@ This message will be shown once per session.</code></pre>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.violin_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="768"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </div>
@@ -615,7 +626,7 @@ This message will be shown once per session.</code></pre>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.violin_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="768"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </div>
@@ -626,7 +637,7 @@ This message will be shown once per session.</code></pre>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.violin_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="768"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </div>
@@ -637,7 +648,7 @@ This message will be shown once per session.</code></pre>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.violin_c</span>(<span class="at">seu =</span> seurat, <span class="at">c=</span>c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="768"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </div>
@@ -671,28 +682,28 @@ This message will be shown once per session.</code></pre>
 <span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/heatmaps-1.png" class="img-fluid" width="672"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/heatmaps-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/heatmaps-2.png" class="img-fluid" width="672"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/heatmaps-2.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "No de genes"</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/heatmaps-3.png" class="img-fluid" width="672"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/heatmaps-3.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/heatmaps-4.png" class="img-fluid" width="672"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/heatmaps-4.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/heatmaps-5.png" class="img-fluid" width="672"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/heatmaps-5.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "No de genes"</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_de_files/figure-html/heatmaps-6.png" class="img-fluid" width="672"></p>
+<p><img src="vis_de_LEC_YUMM_YUMMER_files/figure-html/heatmaps-6.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]

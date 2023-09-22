@@ -1,0 +1,148 @@
+---
+title: "vis_LEC_tumor_skin"
+editor: visual
+---
+
+# Visualize expression across different conditions (LECs in tumor and skin)
+
+The experiment consist of 3 main factors of interest:
+
+-   sample origin: tumor, skin, lymph node
+
+-   main cell type class: leucocytes, LECs
+
+-   tumor type: YUMM, YUMMER
+
+As a first check we are interested in the expression of specific marker genes/known marker and how they vary across combinations of these factors.
+
+## Preamble
+
+```{r}
+#| label: load-libs
+#| echo: true
+#| output: false
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(pheatmap)
+library(patchwork)
+library(Seurat)
+library(stringr)
+library(ggthemes)
+library(SingleCellExperiment)
+library(gridExtra)
+```
+
+## Data objects
+
+From the FGCZ we have different data objects:
+
+1.  Tumor LECs integrated (only tumor LECs, but have been integrated with skin samples) (`data/scData_LEC_tumor.rds`)
+
+2.  Tumor + skin LECs integrated (`data/scData_LEC_tumor_skin.rds`)
+
+3.  All skin + tumor cells
+
+4.  All lymphnode cells
+
+Here we work with **object 2 - Integrated tumor and skin LECs**.
+
+```{r}
+#| label: data
+
+#### ----- change to local path to scData.rds object here ----- #####
+# e.g. seurat <- readRDS("/home/project/data_folder/scData.rds)")
+seurat<- readRDS(file.path("..", "..","..","data", "scData_LEC_tumor_skin.rds"))
+#### --------------------------------------------------------- #####
+
+# correct condition assignment!!
+seurat$cond <- seurat[[]] |> 
+  mutate(
+    cond = case_when(
+       str_detect(Sample, "YUMM[0-9]") ~ "YUMM",
+       str_detect(Sample, "YUMMER") ~ "YUMMER",
+       str_detect(Sample, "Skin") ~ "skin"
+    )
+  ) |> select(cond)
+
+# check assignment
+table(seurat$Sample, seurat$cond)
+table(seurat$cond)
+
+DefaultAssay(seurat) <- "SCT"
+
+cluster_marker <- c("Prox1", "Pdpn", "Ackr4", "Foxp2", "Cldn11", "Alcam", "Esam", "Cd24a", "Lyve1", "Ptx3", "Mrc1", "Ackr2", "Ccl21a", "Reln", "Mmrn1", "Mki67", "Aurkb", "Jam2", "Flt1", "Plvap")
+
+cond_marker <- c("Lyve1", "Ptx3", "Cldn11", "Mrc1", "Ackr2", "Icam1", "Vcam1", "Sema3a", "Nectin2", "Cd274", "Cxcl12", "Ccl21a", "Stat1")
+```
+
+## Overview
+
+### Distribution of conditions per cluster
+
+```{r}
+#| lable: cond-dist
+
+cond_dat <- seurat[[]] |> group_by(cond, ident) |>  summarise(n_cells = n())
+
+ggplot(cond_dat, aes(fill=cond, y=n_cells, x=ident)) + 
+  geom_bar(position="stack", stat="identity") + 
+  scale_fill_tableau() + 
+  theme_bw()
+
+ggplot(cond_dat, aes(fill=cond, y=n_cells, x=ident)) + 
+  geom_bar(position="fill", stat="identity") + 
+  scale_fill_tableau() + 
+  theme_bw()
+
+```
+
+### Distribution of cells within umap
+
+```{r fig.width=9, fig.height=4}
+#| label: dimplot cond
+
+DimPlot(seurat, group.by = "ident", split.by = "cond", reduction = "umap") + ggtitle("")
+
+```
+
+## Cluster marker gene expression
+
+### Dimplots
+
+```{r fig.width=12, fig.height=20}
+#| label: dimplots
+
+FeaturePlot(object = seurat, features = cluster_marker, ncol = 3)
+
+```
+
+### Violinplots
+
+```{r, fig.width=12, fig.height=20}
+#| lable: violin marker
+
+VlnPlot(object = seurat, features = cluster_marker, ncol = 3, assay = "SCT", add.noise = F)
+```
+
+### Dotplots
+
+```{r fig.width=10, fig.height=5}
+#| label: dotplot
+
+DotPlot(object = seurat, features = cluster_marker) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+```
+
+## Conditional marker expression
+
+Expression by condition as Dimplot
+
+```{r, fig.width=10, fig.height=32}
+#| label: dim cond
+
+FeaturePlot(object = seurat, features = cond_marker, ncol = 3, split.by = "cond")
+
+```

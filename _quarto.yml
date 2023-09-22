@@ -9,9 +9,12 @@ website:
       - href: index.qmd
         text: Home
       - about.qmd
-      - text: "Analysis"
+      - text: "Differential expression"
         menu:
-          - code/SNF_draft/YUMM_vs_YUMMER/vis_de.qmd
+          - code/SNF_draft/DE/vis_de_LEC_YUMM_YUMMER.qmd
+      - text: "Exploratory data anaylsis"
+        menu:
+          - code/SNF_draft/EDA/vis_LECs_all.qmd
     tools:
       - icon: github
         menu:
