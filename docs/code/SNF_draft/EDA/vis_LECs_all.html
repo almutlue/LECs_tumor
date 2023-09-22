@@ -186,7 +186,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#violinplots" id="toc-violinplots" class="nav-link" data-scroll-target="#violinplots">Violinplots</a></li>
   <li><a href="#dotplots" id="toc-dotplots" class="nav-link" data-scroll-target="#dotplots">Dotplots</a></li>
   </ul></li>
-  <li><a href="#conditional-marker-expression" id="toc-conditional-marker-expression" class="nav-link" data-scroll-target="#conditional-marker-expression">Conditional marker expression</a></li>
+  <li><a href="#conditional-marker-expression" id="toc-conditional-marker-expression" class="nav-link" data-scroll-target="#conditional-marker-expression">Conditional marker expression</a>
+  <ul class="collapse">
+  <li><a href="#expression-by-condition-as-dimplot" id="toc-expression-by-condition-as-dimplot" class="nav-link" data-scroll-target="#expression-by-condition-as-dimplot">Expression by condition as Dimplot</a></li>
+  <li><a href="#expression-as-violin-plot-grouped-by-cluster" id="toc-expression-as-violin-plot-grouped-by-cluster" class="nav-link" data-scroll-target="#expression-as-violin-plot-grouped-by-cluster">Expression as violin plot grouped by cluster</a></li>
+  <li><a href="#expression-as-violin-plot-grouped-by-cluster-1" id="toc-expression-as-violin-plot-grouped-by-cluster-1" class="nav-link" data-scroll-target="#expression-as-violin-plot-grouped-by-cluster-1">Expression as violin plot grouped by cluster</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -367,15 +372,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="conditional-marker-expression" class="level2">
 <h2 class="anchored" data-anchor-id="conditional-marker-expression">Conditional marker expression</h2>
-<p>Expression by condition as Dimplot</p>
+<section id="expression-by-condition-as-dimplot" class="level3">
+<h3 class="anchored" data-anchor-id="expression-by-condition-as-dimplot">Expression by condition as Dimplot</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cond_marker, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">split.by =</span> <span class="st">"cond"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LECs_all_files/figure-html/dim cond-1.png" class="img-fluid" width="960"></p>
 </div>
 </div>
+</section>
+<section id="expression-as-violin-plot-grouped-by-cluster" class="level3">
+<h3 class="anchored" data-anchor-id="expression-as-violin-plot-grouped-by-cluster">Expression as violin plot grouped by cluster</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vis_LECs_all_files/figure-html/vln cond cluster-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+</section>
+<section id="expression-as-violin-plot-grouped-by-cluster-1" class="level3">
+<h3 class="anchored" data-anchor-id="expression-as-violin-plot-grouped-by-cluster-1">Expression as violin plot grouped by cluster</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vis_LECs_all_files/figure-html/vln cond only-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
 
 
+</section>
 </section>
 </section>
 

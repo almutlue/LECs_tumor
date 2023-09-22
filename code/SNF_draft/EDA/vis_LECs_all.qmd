@@ -138,11 +138,47 @@ DotPlot(object = seurat, features = cluster_marker) +
 
 ## Conditional marker expression
 
-Expression by condition as Dimplot
+### Expression by condition as Dimplot
 
 ```{r, fig.width=10, fig.height=32}
 #| label: dim cond
 
 FeaturePlot(object = seurat, features = cond_marker, ncol = 3, split.by = "cond")
+
+```
+
+### Expression as violin plot grouped by cluster
+
+```{r, fig.width=8, fig.height=32}
+#| label: vln cond cluster
+#| warning: FALSE
+
+VlnPlot(object = seurat, 
+        features = cond_marker, 
+        assay = "SCT", 
+        add.noise = F, 
+        split.by = "cond",
+        ncol = 1) + 
+  plot_layout(guides = 'collect') &
+  scale_fill_tableau() &
+  theme_bw()
+
+```
+
+### Expression as violin plot grouped by cluster
+
+```{r, fig.height=16, fig.width=8}
+#| label: vln cond only
+#| warning: FALSE
+
+VlnPlot(object = seurat, 
+        features = cond_marker,
+        group.by = "cond",
+        assay = "SCT", 
+        add.noise = F,
+        ncol = 2) + 
+  plot_layout(guides = 'collect') &
+  scale_fill_tableau() &
+  theme_bw()
 
 ```
