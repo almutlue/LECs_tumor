@@ -66,6 +66,12 @@ seurat$cond <- seurat[[]] |>
     )
   ) |> select(cond)
 
+seurat <- subset(seurat, idents = '5', invert = TRUE)
+seurat$ident <- droplevels(seurat$ident)
+levels(seurat$ident) <- c("0", "1", "2", "3", "4", "5", "6")
+seurat <- RenameIdents(object = seurat, `6` = "5")
+seurat <- RenameIdents(object = seurat, `7` = "6")
+
 # check assignment
 table(seurat$Sample, seurat$cond)
 table(seurat$cond)
@@ -95,6 +101,19 @@ ggplot(cond_dat, aes(fill=cond, y=n_cells, x=ident)) +
   geom_bar(position="fill", stat="identity") + 
   scale_fill_tableau() + 
   theme_bw()
+
+ggplot(cond_dat, aes(fill=ident, y=n_cells, x=cond)) + 
+  geom_bar(position="fill", stat="identity") + 
+  scale_fill_tableau() + 
+  theme_bw()
+
+```
+
+### Distribution of cluster within each condition
+
+```{r}
+
+
 
 ```
 

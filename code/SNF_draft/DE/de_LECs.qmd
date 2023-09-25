@@ -1,0 +1,87 @@
+---
+title: "DE_LECs"
+editor: visual
+---
+
+# Run Differential expression analysis within LEC subtypes
+
+Standard DE analysis using pseudobulk DE methods (note this differs from the FGCZ default analysis). We want to identify differentially expressed genes within LEC cluster between all groups of *skin*, *YUMMER and YUMM*.
+
+## Preamble
+
+```{r}
+#| label: load-libs
+#| echo: true
+#| output: false
+
+library(scran)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scuttle)
+library(pheatmap)
+library(patchwork)
+library(stringr)
+library(Seurat)
+library(ggbeeswarm)
+library(EnhancedVolcano)
+library(SingleCellExperiment)
+library(gridExtra)
+```
+
+## Data object
+
+```{r}
+#| label: data
+
+seurat<- readRDS(file.path("..", "..","..","data", "scData_LEC_tumor_skin.rds"))
+
+# correct condition assignment!!
+seurat$cond <- seurat[[]] |> 
+  mutate(
+    cond = case_when(
+       str_detect(Sample, "YUMM[0-9]") ~ "YUMM",
+       str_detect(Sample, "YUMMER") ~ "YUMMER",
+       str_detect(Sample, "Skin") ~ "skin"
+    )
+  ) |> select(cond)
+
+# check assignment
+table(seurat$Sample, seurat$cond)
+table(seurat$cond)
+
+# switch to SingleCellExperiment object
+sce <- as.SingleCellExperiment(seurat)
+
+
+```
+
+## DE analysis
+
+```{r}
+#| label: de
+
+cond_de <- function(cond1, cond2){
+  # subset sce
+  sce_sub <- sce[,sce$cond %in% c(cond1, cond2)]
+  # creating pseudobulks
+  summed <- aggregateAcrossCells(sce_sub, 
+                                 id=colData(sce_sub)[,c("ident", "Sample")])
+  # filter min cells
+  summed.filt <- summed[,summed$ncells >= 10]
+  table(summed.filt$cond, summed.filt$ident)
+  # de
+  design <- model.matrix(~factor(sce$cond), sce_sub$Samples)
+  de.results <- pseudoBulkDGE(summed.filt, 
+    label=summed.filt$ident,
+    design=~factor(cond),
+    coef=ncol(design)-1,
+    condition=summed.filt$cond 
+)
+}
+
+test <- cond_de("skin", "YUMM")
+
+cur.results <- test[["0"]]
+cur.results[order(cur.results$PValue),]
+```

@@ -1,0 +1,291 @@
+---
+title: "vis_LEC_tumor_skin"
+editor: visual
+---
+
+# Visualize expression across different conditions (LECs in tumor and skin)
+
+The experiment consist of 3 main factors of interest:
+
+-   sample origin: tumor, skin, lymph node
+
+-   main cell type class: leucocytes, LECs
+
+-   tumor type: YUMM, YUMMER
+
+As a first check we are interested in the expression of specific marker genes/known marker and how they vary across combinations of these factors.
+
+## Preamble
+
+```{r}
+#| label: load-libs
+#| echo: true
+#| output: false
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(pheatmap)
+library(patchwork)
+library(Seurat)
+library(stringr)
+library(ggthemes)
+library(forcats)
+library(gridExtra)
+
+library(ggrepel)
+```
+
+## Data objects
+
+From the FGCZ we have different data objects:
+
+1.  Tumor LECs integrated (only tumor LECs, but have been integrated with skin samples) (`data/scData_LEC_tumor.rds`)
+
+2.  Tumor + skin LECs integrated (`data/scData_LEC_tumor_skin.rds`)
+
+3.  All skin + tumor cells
+
+4.  All lymphnode cells
+
+Here we work with **object 3 - Integrated tumor and skin LECs**.
+
+```{r}
+#| label: data
+
+#### ----- change to local path to scData.rds object here ----- #####
+# e.g. seurat <- readRDS("/home/project/data_folder/scData.rds)")
+seurat<- readRDS(file.path("..", "..","..","data", "scData_all_tumor_skin.rds"))
+#### --------------------------------------------------------- #####
+
+# correct condition assignment!!
+seurat$cond <- seurat[[]] |> 
+  mutate(
+    cond = case_when(
+       str_detect(Sample, "YUMM[0-9]") ~ "YUMM",
+       str_detect(Sample, "YUMMER") ~ "YUMMER",
+       str_detect(Sample, "Skin") ~ "skin"
+    )
+  ) |> select(cond)
+
+# check assignment
+table(seurat$Sample, seurat$cond)
+table(seurat$cond)
+
+seurat$cell_types <- seurat$ident |> 
+  as.factor() |> 
+  forcats::fct_collapse("monocytes/macrophages" = c("0","1","2","5","6","18","22"),
+                        "DCs" = c("4", "12", "19"),
+                        "CD4 T cells" = c("10"),
+                        "CD8 T cells" = c("7", "16"),
+                        "other T cells" = c("3", "11", "15", "23", "24"),
+                        "endothelial cells/fibroblasts" = c("8", "9", "13"),
+                        "mast cells" = c("14"),
+                        "B cells" = c("21"),
+                        "other" = c("17", "20"))
+
+
+DefaultAssay(seurat) <- "SCT"
+
+cluster_marker <- c("Cd3e", "Cd8a", "Cd4" ,"Tcf7", "Lef1", "Pdcd1", "Sell", "Tigit", "Cxcr4", "Ccr7", "Foxp3", "Ctla4", "Trdc", "Il12b", "Itgae", "Xcr1", "Cd207", "Notch2", "Itgax", "Itgam", "Il1a", "Cd80", "Cd19", "Prox1", "Pecam1", "Csf2rb", "Csf3r", "Il1r2", "Acta2", "Pdgfrb", "Ctsk", "Cd74", "H2-Ab1", "H2-Aa", "Krt15", "Krt5", "Cd79a", "Ccl3", "Ccl4", "Cd63")
+
+cond_marker <- c("Cd3e", "Cd8a", "Cd4", "Tcf7", "Lef1", "Pdcd1", "Foxp3", "Cxcr4")
+```
+
+## Overview
+
+### Distribution of conditions per cluster
+
+```{r}
+#| lable: cond-dist
+
+cond_dat <- seurat[[]] |> group_by(cond, cell_types) |>  summarise(n_cells = n())
+
+ggplot(cond_dat, aes(fill=cond, y=n_cells, x=cell_types)) + 
+  geom_bar(position="stack", stat="identity") + 
+  scale_fill_tableau() + 
+  theme_bw()
+
+ggplot(cond_dat, aes(fill=cond, y=n_cells, x=cell_types)) + 
+  geom_bar(position="fill", stat="identity") + 
+  scale_fill_tableau() + 
+  theme_bw()
+
+ggplot(cond_dat, aes(fill=cell_types, y=n_cells, x=cond)) + 
+  geom_bar(position="fill", stat="identity") + 
+  scale_fill_tableau() + 
+  theme_bw()
+
+```
+
+### Distribution of cells within umap
+
+```{r fig.width=9, fig.height=4}
+#| label: dimplot cond
+
+DimPlot(seurat, group.by = "ident", 
+        split.by = "cond", 
+        reduction = "umap", 
+        label = T) + 
+  ggtitle("") + 
+  theme(legend.position = "none")
+
+
+#Almut please put number of clusters inside the plot
+```
+
+### Distribution of broad cell types
+
+```{r, fig.width=12, fig.height=4}
+#| label: broad ct umap
+
+DimPlot(seurat, group.by = "cell_types", 
+        split.by = "cond", 
+        reduction = "umap", 
+        label = T) + 
+  ggtitle("") 
+
+```
+
+## Cluster marker gene expression
+
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **Cluster**                   | Genes                               | **Cluster**                | Genes                                | **Cluster**           | Genes                           |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **0 - Monocytes/\             | Cxcr4, Notch2, Itgax, Csf2rb, Il1r2 | **9 - LECs**               | Prox1, Pecam1                        | **18 - Macrophages**  | Cxcr4, Il1a, CD80, Csf3r, Il1r2 |
+| Macrophages**                 |                                     |                            |                                      |                       |                                 |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **1 - Monocytes/\             | Cxcr4, Notch2, Itgam                | **10 - Tregs**             | Cd3e, Cd4, Sell, Tigit, FoxP3, Ctla4 | **19 - DCs**          | Cd74, H2-Ab1, H2-Aa             |
+| Macrophages**                 |                                     |                            |                                      |                       |                                 |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **2 - Granulocytes**          | Notch2, Itgax, CD80, Csf2rb, Il1r2  | **11 - TGD**               | Cd3e, Tcf7, Trdc                     | **20 -Keratinocytes** | Krt15, Krt5                     |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **3 - TGD**                   | Tcf7, Lef1, Sell, Tigit, Trdc       | **12 - DC**                | CCR7, Il12b, CD80, Csf2rb            | **21 - B cells**      | CD19, Cd79a                     |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **4 - cDC2**                  | Notch2, Itgam                       | **13 - Fibroblasts**       | acta2, Pdgfrb                        | **22 - Monocytes**    | Itgax                           |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **5 - Macrophages**           | Notch2, Itgax, Itgam, Csf2rb        | **14 - Mast cells**        | Notch2, Csf2rb, Cd63                 | **23 - TGD**          | Tcf7, Trdc                      |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **6 - Monocytes**             | Itgam                               | **15 - T cells**           | Cd3e, Tcf7, Cxcr4,                   | **24 - T cells**      | Ccl3, Ccl4                      |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **7 - exhausted CD8 T cells** | Cd3e, Cd8a, Pdcd1                   | **16 - naive CD8 T cells** | Cd3e, Cd8a, Tcf7, Ctla4              |                       |                                 |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+| **8 - LECs**                  | Notch2, Prox1, Pecam1               | **17 - Osteoclasts**       | Ctsk                                 |                       |                                 |
++-------------------------------+-------------------------------------+----------------------------+--------------------------------------+-----------------------+---------------------------------+
+
+### Dimplots
+
+```{r fig.width=12, fig.height=35}
+#| label: dimplots
+
+FeaturePlot(object = seurat, features = cluster_marker, ncol = 3)
+
+```
+
+### Violinplots
+
+```{r, fig.width=14, fig.height=50}
+#| lable: violin marker
+Idents(seurat) <- "cell_types"
+VlnPlot(object = seurat, features = cluster_marker, ncol = 3, assay = "SCT", add.noise = F)
+```
+
+### Dotplots
+
+```{r fig.width=13, fig.height=5}
+#| label: dotplot
+
+DotPlot(object = seurat, features = cluster_marker) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+```
+
+## Conditional marker expression
+
+### Expression by condition as Dimplot
+
+```{r, fig.width=10, fig.height=25}
+#| label: dim cond
+
+FeaturePlot(object = seurat, features = cond_marker, ncol = 3, split.by = "cond")
+
+```
+
+### Expression as violin plot grouped by cluster
+
+```{r, fig.width=8, fig.height=30}
+#| label: vln cond cluster
+#| warning: FALSE
+
+VlnPlot(object = seurat, 
+        features = cond_marker, 
+        assay = "SCT", 
+        add.noise = F, 
+        split.by = "cond",
+        ncol = 1) + 
+  plot_layout(guides = 'collect') &
+  scale_fill_tableau() &
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
+
+```
+
+### Expression as violin plot clusters combined
+
+```{r, fig.height=12, fig.width=8}
+#| label: vln cond only
+#| warning: FALSE
+
+VlnPlot(object = seurat, 
+        features = cond_marker,
+        group.by = "cond",
+        assay = "SCT", 
+        add.noise = F,
+        ncol = 2) + 
+  plot_layout(guides = 'collect') &
+  scale_fill_tableau() &
+  theme_bw()
+
+```
+
+### Expression as violin plot cluster 7
+
+```{r, fig.height=12, fig.width=8}
+#| label: vln cond7 only
+#| warning: FALSE
+Idents(seurat) <- "ident"
+
+# Subset your Seurat object to only include cells from cluster 7
+cluster7_seurat <- subset(seurat, idents = 7)
+
+# Create the violin plot for cluster 7
+VlnPlot(object = cluster7_seurat, 
+        features = cond_marker,
+        group.by = "cond",
+        assay = "SCT", 
+        add.noise = F,
+        ncol = 2) + 
+  plot_layout(guides = 'collect') &
+  scale_fill_tableau() &
+  theme_bw()
+```
+
+### Expression as violin plot cluster 16
+
+```{r, fig.height=12, fig.width=8}
+#| label: vln cond716 only
+#| warning: FALSE
+
+# Subset your Seurat object to only include cells from cluster 16
+cluster16_seurat <- subset(seurat, idents = 16)
+
+# Create the violin plot for cluster 7
+VlnPlot(object = cluster16_seurat, 
+        features = cond_marker,
+        group.by = "cond",
+        assay = "SCT", 
+        add.noise = FALSE,
+        ncol = 2) + 
+  plot_layout(guides = 'collect') &
+  scale_fill_tableau() &
+  theme_bw()
+```
