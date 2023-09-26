@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>LECs_tumor - vis_LEC_tumor_skin</title>
+<title>LECs_tumor - vis_lymphnode_leukocytes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -149,11 +149,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="../../../code/SNF_draft/EDA/vis_tumor_CD45_all.html" rel="" target="">
- <span class="dropdown-text">vis_LEC_tumor_skin</span></a>
+ <span class="dropdown-text">vis_tumor_CD45_leukocytes</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../../code/SNF_draft/EDA/vis_LN_CD45.html" rel="" target="">
- <span class="dropdown-text">vis_LEC_tumor_skin</span></a>
+ <span class="dropdown-text">vis_lymphnode_leukocytes</span></a>
   </li>  
     </ul>
   </li>
@@ -183,7 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#visualize-expression-across-different-conditions-lecs-in-tumor-and-skin" id="toc-visualize-expression-across-different-conditions-lecs-in-tumor-and-skin" class="nav-link active" data-scroll-target="#visualize-expression-across-different-conditions-lecs-in-tumor-and-skin">Visualize expression across different conditions (LECs in tumor and skin)</a>
+  <li><a href="#visualize-expression-across-different-conditions-leukocytes-in-lymphnodes" id="toc-visualize-expression-across-different-conditions-leukocytes-in-lymphnodes" class="nav-link active" data-scroll-target="#visualize-expression-across-different-conditions-leukocytes-in-lymphnodes">Visualize expression across different conditions (Leukocytes in lymphnodes)</a>
   <ul class="collapse">
   <li><a href="#preamble" id="toc-preamble" class="nav-link" data-scroll-target="#preamble">Preamble</a></li>
   <li><a href="#data-objects" id="toc-data-objects" class="nav-link" data-scroll-target="#data-objects">Data objects</a></li>
@@ -215,7 +215,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">vis_LEC_tumor_skin</h1>
+<h1 class="title">vis_lymphnode_leukocytes</h1>
 </div>
 
 
@@ -230,8 +230,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="visualize-expression-across-different-conditions-lecs-in-tumor-and-skin" class="level1">
-<h1>Visualize expression across different conditions (LECs in tumor and skin)</h1>
+<section id="visualize-expression-across-different-conditions-leukocytes-in-lymphnodes" class="level1">
+<h1>Visualize expression across different conditions (Leukocytes in lymphnodes)</h1>
 <p>The experiment consist of 3 main factors of interest:</p>
 <ul>
 <li><p>sample origin: tumor, skin, lymph node</p></li>
@@ -265,7 +265,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p>All skin + tumor cells</p></li>
 <li><p>All lymphnode cells</p></li>
 </ol>
-<p>Here we work with <strong>object 4 - All cells from LN in tumor samples</strong>.</p>
+<p>Here we work with <strong>object 4 - All leukocytes from LN in tumor samples</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">#### ----- change to local path to scData.rds object here ----- #####</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># e.g. seurat &lt;- readRDS("/home/project/data_folder/scData.rds)")</span></span>
@@ -395,10 +395,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="cluster-marker-gene-expression">Cluster marker gene expression</h2>
 <table class="table">
 <colgroup>
-<col style="width: 21%">
+<col style="width: 23%">
+<col style="width: 26%">
+<col style="width: 23%">
 <col style="width: 27%">
-<col style="width: 21%">
-<col style="width: 28%">
 </colgroup>
 <tbody>
 <tr class="odd">

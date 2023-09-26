@@ -1,9 +1,9 @@
 ---
-title: "vis_LEC_tumor_skin"
+title: "vis_tumor_CD45_leukocytes"
 editor: visual
 ---
 
-# Visualize expression across different conditions (LECs in tumor and skin)
+# Visualize expression across different conditions (Leukocytes in tumor and skin)
 
 The experiment consist of 3 main factors of interest:
 
@@ -48,7 +48,7 @@ From the FGCZ we have different data objects:
 
 4.  All lymphnode cells
 
-Here we work with **object 3 - Integrated tumor and skin LECs**.
+Here we work with **object 3 - Integrated tumor and skin leukocytes**.
 
 ```{r}
 #| label: data

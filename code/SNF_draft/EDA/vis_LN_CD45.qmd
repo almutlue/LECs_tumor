@@ -1,9 +1,9 @@
 ---
-title: "vis_LEC_tumor_skin"
+title: "vis_lymphnode_leukocytes"
 editor: visual
 ---
 
-# Visualize expression across different conditions (LECs in tumor and skin)
+# Visualize expression across different conditions (Leukocytes in lymphnodes)
 
 The experiment consist of 3 main factors of interest:
 
@@ -48,7 +48,7 @@ From the FGCZ we have different data objects:
 
 4.  All lymphnode cells
 
-Here we work with **object 4 - All cells from LN in tumor samples**.
+Here we work with **object 4 - All leukocytes from LN in tumor samples**.
 
 ```{r}
 #| label: data
@@ -142,7 +142,7 @@ DimPlot(seurat,
 ## Cluster marker gene expression
 
 |                               |                                               |                            |                                                  |
-|----------------|--------------------|----------------|---------------------|
+|-----------------|-------------------|-----------------|--------------------|
 | **Cluster**                   | Genes                                         | **Cluster**                | Genes                                            |
 | **0 - naive CD8 T cells**     | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **9 - B cells**            | Cd79a, H2-Aa, H2-Ab1, Cd19, Sell                 |
 | **1** **- naive CD8 T cells** | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **10 - naive CD4 T cells** | Cd3e, Cd4, Tsf7                                  |
