@@ -29,6 +29,48 @@ library(SingleCellExperiment)
 library(gridExtra)
 ```
 
+```{r}
+#| label: plot fun
+#| code-fold: true
+
+# volcano plot function as defined in https://github.com/HelenaLC/TLS-Silina/blob/main/code/geo-02-differential.qmd
+
+.volcano <- \(df, title, fdr = 0.05, lfc = 1, select_lab = NULL) {
+  EnhancedVolcano(df, 
+    x = "logFC", y = "PValue",
+    FCcutoff = lfc, pCutoff = fdr,
+    selectLab = select_lab,
+    pointSize = 1.7, raster = TRUE,
+    title = title, subtitle = NULL,
+    lab = rownames(df), labSize = 4, 
+    drawConnectors = TRUE, widthConnectors = 0.5) +
+  guides(col = guide_legend(override.aes = list(alpha = 1, size = 5))) +
+  theme_bw(9) + theme(
+    aspect.ratio = 1,
+    legend.title = element_blank(),
+    panel.grid.minor = element_blank())
+}
+
+.heatmap <- \(mtx, de_genes, cd, title, fdr = 0.05, n_lfc = 20) {
+  top <- de_genes %>%
+    filter(PValue < fdr) |> 
+    slice_max(abs(logFC), n = n_lfc)
+  mtx_sub <- log1p(mtx[rownames(top),])
+  if (length(rownames(top)) < 2){
+    return(print("No de genes"))
+  }else{
+  hm <- pheatmap(mtx_sub, 
+      main = title, fontsize = 6,
+      col = rev(hcl.colors(51, "RdBu")),
+      scale = "row", show_colnames = FALSE, annotation_col = cd)
+  hm
+  }
+}
+
+
+
+```
+
 ## Data object
 
 ```{r}
@@ -68,20 +110,173 @@ cond_de <- function(cond1, cond2){
   summed <- aggregateAcrossCells(sce_sub, 
                                  id=colData(sce_sub)[,c("ident", "Sample")])
   # filter min cells
-  summed.filt <- summed[,summed$ncells >= 10]
-  table(summed.filt$cond, summed.filt$ident)
+  summed.filt <- summed[,summed$ncells >= 5]
+  print(table(summed.filt$cond, summed.filt$ident))
   # de
-  design <- model.matrix(~factor(sce$cond), sce_sub$Samples)
+  design <- model.matrix(~factor(summed.filt$cond), summed.filt$Samples)
   de.results <- pseudoBulkDGE(summed.filt, 
     label=summed.filt$ident,
     design=~factor(cond),
-    coef=ncol(design)-1,
+    coef=ncol(design),
     condition=summed.filt$cond 
 )
 }
 
-test <- cond_de("skin", "YUMM")
+skin_yumm <- cond_de("skin", "YUMM")
+yummer_yumm <- cond_de("YUMMER", "YUMM")
+skin_yummer <- cond_de("skin","YUMMER")
 
-cur.results <- test[["0"]]
-cur.results[order(cur.results$PValue),]
+
+#DE skin_yumm
+is.de <- decideTestsPerLabel(skin_yumm, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#DE yummer_yumm
+is.de <- decideTestsPerLabel(yummer_yumm, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#DE skin_yummer
+is.de <- decideTestsPerLabel(skin_yummer, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+
+#sort
+```
+
+## Plot results
+
+#### skin vs yumm
+
+```{r fig.width=7, fig.height=16}
+#| label: volcano
+#| warning: FALSE
+
+plot_list <- lapply(names(skin_yumm), \(.) {
+  df = skin_yumm[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+
+```
+
+#### yummer vs yumm
+
+```{r fig.width=7, fig.height=16}
+#| label: volcano yumm yummer
+#| warning: FALSE
+
+plot_list <- lapply(names(yummer_yumm), \(.) {
+  df = yummer_yumm[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+#### skin vs yummer
+
+```{r, fig.height=15, fig.width=8}
+#| label: volcano skin yummer
+#| warning: FALSE
+
+plot_list <- lapply(names(skin_yummer), \(.) {
+  df = skin_yummer[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Lyve1"))
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+### Heatmap plots
+
+#### skin vs yumm
+
+```{r, fig.width= 6, fig.height=5}
+
+for (. in names(skin_yumm)) {
+    cat("####", ., "\n")
+    sub <- subset(x = seurat, idents = .)
+    sub <- subset(x = sub, subset = cond %in% c("YUMM", "skin"))
+    mtx <- GetAssayData(object = sub, slot = 'data')
+    top <- as.data.frame(skin_yumm[[.]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 40)
+    mtx_sub <- log1p(mtx[rownames(top),])
+    cd <- data.frame(sub[[]] |> select('cond'))
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "row", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
+```
+
+#### yummer vs yumm
+
+```{r, fig.width= 6, fig.height=5}
+
+for (. in names(yummer_yumm)) {
+    cat("####", ., "\n")
+    sub <- subset(x = seurat, idents = .)
+    sub <- subset(x = sub, subset = cond %in% c("YUMMER", "YUMM"))
+    mtx <- GetAssayData(object = sub, slot = 'data')
+    top <- as.data.frame(yummer_yumm[[.]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 40)
+    mtx_sub <- log1p(mtx[rownames(top),])
+    cd <- data.frame(sub[[]] |> select('cond'))
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "row", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
+```
+
+#### skin vs yummer
+
+```{r, fig.width= 6, fig.height=5}
+
+for (. in names(skin_yummer)) {
+    cat("####", ., "\n")
+    sub <- subset(x = seurat, idents = .)
+    sub <- subset(x = sub, subset = cond %in% c("YUMMER", "skin"))
+    mtx <- GetAssayData(object = sub, slot = 'data')
+    top <- as.data.frame(skin_yummer[[.]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 40)
+    mtx_sub <- log1p(mtx[rownames(top),])
+    cd <- data.frame(sub[[]] |> select('cond'))
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "row", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
 ```

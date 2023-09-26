@@ -12,10 +12,12 @@ website:
       - text: "Differential expression"
         menu:
           - code/SNF_draft/DE/vis_de_LEC_YUMM_YUMMER.qmd
+          - code/SNF_draft/DE/de_LECs.qmd
       - text: "Exploratory data anaylsis"
         menu:
           - code/SNF_draft/EDA/vis_LECs_all.qmd
           - code/SNF_draft/EDA/vis_tumor_CD45_all.qmd
+          - code/SNF_draft/EDA/vis_LN_CD45.qmd
     tools:
       - icon: github
         menu:

@@ -58,6 +58,7 @@ Here we work with **object 3 - Integrated tumor and skin LECs**.
 seurat<- readRDS(file.path("..", "..","..","data", "scData_all_tumor_skin.rds"))
 #### --------------------------------------------------------- #####
 
+
 # correct condition assignment!!
 seurat$cond <- seurat[[]] |> 
   mutate(
@@ -93,6 +94,21 @@ cond_marker <- c("Cd3e", "Cd8a", "Cd4", "Tcf7", "Lef1", "Pdcd1", "Foxp3", "Cxcr4
 ```
 
 ## Overview
+
+#### Mean features/molecules per condition
+
+```{r}
+#| label: mean feature/mol counts
+
+# mean molecules/group
+mean_mol <- seurat[[]] |> group_by(cond) |>  summarise(mean_mol = mean(nCount_RNA))
+mean_mol
+
+# mean unique genes/group
+mean_feature <- seurat[[]] |> group_by(cond) |>  summarise(mean_gene = mean(nFeature_RNA))
+mean_feature
+
+```
 
 ### Distribution of conditions per cluster
 

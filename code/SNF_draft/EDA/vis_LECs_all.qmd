@@ -85,6 +85,22 @@ cond_marker <- c("Lyve1", "Ptx3", "Cldn11", "Mrc1", "Ackr2", "Icam1", "Vcam1", "
 
 ## Overview
 
+#### Mean feature gene counts
+
+```{r}
+#| label: mean feature/mol counts
+
+# mean molecules/group
+mean_mol <- seurat[[]] |> group_by(cond) |>  summarise(mean_mol = mean(nCount_RNA))
+mean_mol
+
+# mean unique genes/group
+mean_feature <- seurat[[]] |> group_by(cond) |>  summarise(mean_gene = mean(nFeature_RNA))
+mean_feature
+
+
+```
+
 ### Distribution of conditions per cluster
 
 ```{r}
