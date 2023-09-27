@@ -142,7 +142,7 @@ DimPlot(seurat,
 ## Cluster marker gene expression
 
 |                               |                                               |                            |                                                  |
-|-----------------|-------------------|-----------------|--------------------|
+|-------------------------------|-----------------------------------------------|----------------------------|--------------------------------------------------|
 | **Cluster**                   | Genes                                         | **Cluster**                | Genes                                            |
 | **0 - naive CD8 T cells**     | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **9 - B cells**            | Cd79a, H2-Aa, H2-Ab1, Cd19, Sell                 |
 | **1** **- naive CD8 T cells** | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **10 - naive CD4 T cells** | Cd3e, Cd4, Tsf7                                  |

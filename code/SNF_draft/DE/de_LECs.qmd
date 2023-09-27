@@ -140,7 +140,23 @@ is.de <- decideTestsPerLabel(skin_yummer, threshold=0.05)
 summarizeTestsPerLabel(is.de)
 
 
-#sort
+#write as output
+write_de_res <- function(de_obj, res_nam){
+  res_list <- lapply(names(de_obj), function(clust, nam = res_nam){
+    cur.res <- de_obj[[clust]]
+    res <- cur.res[order(cur.res$PValue),] |> 
+      as.data.frame() |> 
+      filter(!is.na(PValue))
+    ## --- adapt path until DE/ to local output path -----##
+    write.csv(res, paste0("../../../out/DE/LEC_", nam, "_", clust, ".csv"))
+    res
+  })
+}
+
+de_skin_yumm <- write_de_res(skin_yumm, res_nam = "skin_yumm")
+de_skin_yumm <- write_de_res(yummer_yumm, res_nam = "yummer_yumm")
+de_skin_yumm <- write_de_res(skin_yummer, res_nam = "skin_yummer")
+
 ```
 
 ## Plot results
