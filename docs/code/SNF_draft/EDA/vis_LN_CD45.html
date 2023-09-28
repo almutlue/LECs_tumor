@@ -309,11 +309,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   YUMM YUMMER 
   9722  22140 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DefaultAssay</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"SCT"</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>cluster_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span> ,<span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Sell"</span>, <span class="st">"Tigit"</span>, <span class="st">"Cxcr4"</span>, <span class="st">"Ccr7"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Ctla4"</span>, <span class="st">"Trdc"</span>, <span class="st">"Il12b"</span>, <span class="st">"Itgae"</span>, <span class="st">"Xcr1"</span>, <span class="st">"Cd207"</span>, <span class="st">"Notch2"</span>, <span class="st">"Itgax"</span>, <span class="st">"Itgam"</span>, <span class="st">"Il1a"</span>, <span class="st">"Cd80"</span>, <span class="st">"Cd19"</span>, <span class="st">"Prox1"</span>, <span class="st">"Pecam1"</span>, <span class="st">"Csf2rb"</span>, <span class="st">"Csf3r"</span>, <span class="st">"Il1r2"</span>, <span class="st">"Acta2"</span>, <span class="st">"Pdgfrb"</span>, <span class="st">"Ctsk"</span>, <span class="st">"Cd74"</span>, <span class="st">"H2-Ab1"</span>, <span class="st">"H2-Aa"</span>, <span class="st">"Krt15"</span>, <span class="st">"Cd79a"</span>, <span class="st">"Ccl3"</span>, <span class="st">"Ccl4"</span>, <span class="st">"Cd63"</span>, <span class="st">"Ifng"</span>, <span class="st">"Klra8"</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>cond_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span>, <span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Cxcr4"</span>, <span class="st">"Ifng"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>seurat<span class="sc">$</span>cell_types <span class="ot">&lt;-</span> seurat<span class="sc">$</span>ident <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  forcats<span class="sc">::</span><span class="fu">fct_collapse</span>(<span class="st">"Naïve CD8 T cells"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">"1"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"Naïve CD4 T cells"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"10"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"Memory/stem like CD8 T cells"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"4"</span>,<span class="st">"14"</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"NK cells"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"3"</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"TGD"</span><span class="ot">=</span><span class="fu">c</span>(<span class="st">"5"</span>,<span class="st">"13"</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"regulatory T cells"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"7"</span>, <span class="st">"12"</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"DCs"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"15"</span>,<span class="st">"2"</span>,<span class="st">"6"</span>, <span class="st">"8"</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"LECs"</span> <span class="ot">=</span><span class="fu">c</span>(<span class="st">"16"</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"B cells"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"9"</span>, <span class="st">"11"</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"other"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"17"</span>))</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>seurat<span class="sc">$</span>cell_types_nr <span class="ot">&lt;-</span> seurat<span class="sc">$</span>ident <span class="sc">|&gt;</span> </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  forcats<span class="sc">::</span><span class="fu">fct_collapse</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">"1"</span>),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"1"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"10"</span>),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"2"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"4"</span>,<span class="st">"14"</span>),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"3"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"3"</span>),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"4"</span><span class="ot">=</span><span class="fu">c</span>(<span class="st">"5"</span>,<span class="st">"13"</span>),</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"5"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"7"</span>, <span class="st">"12"</span>),</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"6"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"15"</span>,<span class="st">"2"</span>,<span class="st">"6"</span>, <span class="st">"8"</span>),</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"7"</span> <span class="ot">=</span><span class="fu">c</span>(<span class="st">"16"</span>),</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"8"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"9"</span>, <span class="st">"11"</span>),</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"9"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"17"</span>))</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="fu">DefaultAssay</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"SCT"</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>cluster_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Ptprc"</span>, <span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span> ,<span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Sell"</span>, <span class="st">"Tigit"</span>, <span class="st">"Cxcr4"</span>, <span class="st">"Ccr7"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Ctla4"</span>, <span class="st">"Trdc"</span>, <span class="st">"Il12b"</span>, <span class="st">"Itgae"</span>, <span class="st">"Xcr1"</span>, <span class="st">"Cd207"</span>, <span class="st">"Notch2"</span>, <span class="st">"Itgax"</span>, <span class="st">"Itgam"</span>, <span class="st">"Il1a"</span>, <span class="st">"Cd80"</span>, <span class="st">"Cd19"</span>, <span class="st">"Prox1"</span>, <span class="st">"Pecam1"</span>, <span class="st">"Csf2rb"</span>, <span class="st">"Csf3r"</span>, <span class="st">"Il1r2"</span>, <span class="st">"Acta2"</span>, <span class="st">"Pdgfrb"</span>, <span class="st">"Ctsk"</span>, <span class="st">"Cd74"</span>, <span class="st">"H2-Ab1"</span>, <span class="st">"H2-Aa"</span>, <span class="st">"Krt15"</span>, <span class="st">"Krt5"</span>, <span class="st">"Cd79a"</span>, <span class="st">"Ccl3"</span>, <span class="st">"Ccl4"</span>, <span class="st">"Cd63"</span>, <span class="st">"Cxcr3"</span>, <span class="st">"Fcgr1"</span>, <span class="st">"Fcgr3"</span>, <span class="st">"Ncam1"</span>, <span class="st">"Cd24a"</span>, <span class="st">"Klrb1c"</span>, <span class="st">"Cd62l"</span>, <span class="st">"Ly6c1"</span>, <span class="st">"Adgre1"</span>, <span class="st">"Cd44"</span>, <span class="st">"Nrp1"</span>, <span class="st">"Lag3"</span>, <span class="st">"Il2ra"</span>, <span class="st">"Icos"</span>, <span class="st">"Klf2"</span>, <span class="st">"Il7r"</span>, <span class="st">"Ifng"</span>, <span class="st">"Prf1"</span>, <span class="st">"Cd244a"</span>, <span class="st">"Cd160"</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>cond_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span>, <span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Cxcr4"</span>, <span class="st">"Ifng"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="overview" class="level2">
@@ -346,48 +372,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="distribution-of-conditions-per-cluster" class="level3">
 <h3 class="anchored" data-anchor-id="distribution-of-conditions-per-cluster">Distribution of conditions per cluster</h3>
 <div class="cell" data-lable="cond-dist">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cond_dat <span class="ot">&lt;-</span> seurat[[]] <span class="sc">|&gt;</span> <span class="fu">group_by</span>(cond, ident) <span class="sc">|&gt;</span>  <span class="fu">summarise</span>(<span class="at">n_cells =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cond_dat <span class="ot">&lt;-</span> seurat[[]] <span class="sc">|&gt;</span> <span class="fu">group_by</span>(cond, cell_types) <span class="sc">|&gt;</span>  <span class="fu">summarise</span>(<span class="at">n_cells =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'cond'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat, <span class="fu">aes</span>(<span class="at">fill=</span>cond, <span class="at">y=</span>n_cells, <span class="at">x=</span>ident)) <span class="sc">+</span> </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"stack"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="st">"YUMM"</span> <span class="ot">=</span> <span class="st">"#F28E2B"</span>, <span class="st">"YUMMER"</span> <span class="ot">=</span> <span class="st">"#E15759"</span>)) <span class="sc">+</span> </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>cond_dat_nr <span class="ot">&lt;-</span> seurat[[]] <span class="sc">|&gt;</span> <span class="fu">group_by</span>(cond, cell_types_nr) <span class="sc">|&gt;</span>  <span class="fu">summarise</span>(<span class="at">n_cells =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'cond'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat, <span class="fu">aes</span>(<span class="at">fill=</span>cond, <span class="at">y=</span>n_cells, <span class="at">x=</span>cell_types)) <span class="sc">+</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"stack"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="st">"YUMM"</span> <span class="ot">=</span> <span class="st">"#F28E2B"</span>, <span class="st">"YUMMER"</span> <span class="ot">=</span> <span class="st">"#E15759"</span>)) <span class="sc">+</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat, <span class="fu">aes</span>(<span class="at">fill=</span>cond, <span class="at">y=</span>n_cells, <span class="at">x=</span>ident)) <span class="sc">+</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"fill"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="st">"YUMM"</span> <span class="ot">=</span> <span class="st">"#F28E2B"</span>, <span class="st">"YUMMER"</span> <span class="ot">=</span> <span class="st">"#E15759"</span>)) <span class="sc">+</span> </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat, <span class="fu">aes</span>(<span class="at">fill=</span>cond, <span class="at">y=</span>n_cells, <span class="at">x=</span>cell_types)) <span class="sc">+</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"fill"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="st">"YUMM"</span> <span class="ot">=</span> <span class="st">"#F28E2B"</span>, <span class="st">"YUMMER"</span> <span class="ot">=</span> <span class="st">"#E15759"</span>)) <span class="sc">+</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat, <span class="fu">aes</span>(<span class="at">fill=</span>ident, <span class="at">y=</span>n_cells, <span class="at">x=</span>cond)) <span class="sc">+</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"fill"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>(<span class="at">palette =</span> <span class="st">"Tableau 20"</span>) <span class="sc">+</span> </span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat, <span class="fu">aes</span>(<span class="at">fill=</span>cell_types, <span class="at">x=</span>n_cells, <span class="at">y=</span>cond)) <span class="sc">+</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"fill"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat_nr, <span class="fu">aes</span>(<span class="at">fill=</span>cell_types_nr, <span class="at">x=</span>n_cells, <span class="at">y=</span>cond)) <span class="sc">+</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"fill"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vis_LN_CD45_files/figure-html/unnamed-chunk-4-4.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
 <section id="distribution-of-cells-within-umap" class="level3">
 <h3 class="anchored" data-anchor-id="distribution-of-cells-within-umap">Distribution of cells within umap</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"ident"</span>, </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) <span class="sc">+</span> </span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cell_types"</span>, </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) <span class="sc">+</span> </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/dimplot cond-1.png" class="img-fluid" width="864"></p>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Almut please put number of clusters inside the plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cell_types_nr"</span>, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) <span class="sc">+</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vis_LN_CD45_files/figure-html/dimplot cond nr-1.png" class="img-fluid" width="864"></p>
+</div>
 </div>
 </section>
 </section>
@@ -395,10 +442,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="cluster-marker-gene-expression">Cluster marker gene expression</h2>
 <table class="table">
 <colgroup>
-<col style="width: 21%">
+<col style="width: 23%">
+<col style="width: 26%">
+<col style="width: 23%">
 <col style="width: 27%">
-<col style="width: 21%">
-<col style="width: 28%">
 </colgroup>
 <tbody>
 <tr class="odd">
@@ -466,10 +513,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="dimplots" class="level3">
 <h3 class="anchored" data-anchor-id="dimplots">Dimplots</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not find Krt5 in the default search locations, found in RNA
+assay instead</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in FetchData.Seurat(object = object, vars = c(dims, "ident", features),
-: The following requested variables were not found: Krt15</code></pre>
+: The following requested variables were not found: Krt15, Cd62l</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/dimplots-1.png" class="img-fluid" width="1152"></p>
@@ -479,24 +530,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="violinplots" class="level3">
 <h3 class="anchored" data-anchor-id="violinplots">Violinplots</h3>
 <div class="cell" data-lable="violin marker">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">assay =</span> <span class="st">"SCT"</span>, <span class="at">add.noise =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">assay =</span> <span class="st">"SCT"</span>, <span class="at">add.noise =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not find Krt5 in the default search locations, found in RNA
+assay instead</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in FetchData.Seurat(object = object, vars = features, slot = slot): The
-following requested variables were not found: Krt15</code></pre>
+following requested variables were not found: Krt15, Cd62l</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="vis_LN_CD45_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="1152"></p>
+<p><img src="vis_LN_CD45_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="1152"></p>
 </div>
 </div>
 </section>
 <section id="dotplots" class="level3">
 <h3 class="anchored" data-anchor-id="dotplots">Dotplots</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker) <span class="sc">+</span> </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker) <span class="sc">+</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not find Krt5 in the default search locations, found in RNA
+assay instead</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in FetchData.Seurat(object = object, vars = features, cells = cells):
-The following requested variables were not found: Krt15</code></pre>
+The following requested variables were not found: Krt15, Cd62l</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/dotplot-1.png" class="img-fluid" width="1152"></p>
@@ -509,7 +568,7 @@ The following requested variables were not found: Krt15</code></pre>
 <section id="expression-by-condition-as-dimplot" class="level3">
 <h3 class="anchored" data-anchor-id="expression-by-condition-as-dimplot">Expression by condition as Dimplot</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cond_marker, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">split.by =</span> <span class="st">"cond"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cond_marker, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">split.by =</span> <span class="st">"cond"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/dim cond-1.png" class="img-fluid" width="768"></p>
 </div>
@@ -518,15 +577,15 @@ The following requested variables were not found: Krt15</code></pre>
 <section id="expression-as-violin-plot-grouped-by-cluster" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-grouped-by-cluster">Expression as violin plot grouped by cluster</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker, </span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F, </span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker, </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F, </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/vln cond cluster-1.png" class="img-fluid" width="768"></p>
 </div>
@@ -535,15 +594,15 @@ The following requested variables were not found: Krt15</code></pre>
 <section id="expression-as-violin-plot-clusters-combined" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-clusters-combined">Expression as violin plot clusters combined</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/vln cond only-1.png" class="img-fluid" width="768"></p>
 </div>
@@ -552,19 +611,19 @@ The following requested variables were not found: Krt15</code></pre>
 <section id="expression-as-violin-plot-cluster-0" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-cluster-0">Expression as violin plot cluster 0</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 7</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>cluster0_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">0</span>)</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster0_seurat, </span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 7</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>cluster0_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">0</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster0_seurat, </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/vln cond0 only-1.png" class="img-fluid" width="768"></p>
 </div>
@@ -573,19 +632,19 @@ The following requested variables were not found: Krt15</code></pre>
 <section id="expression-as-violin-plot-cluster-5" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-cluster-5">Expression as violin plot cluster 5</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 16</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>cluster5_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">5</span>)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster5_seurat, </span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 16</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>cluster5_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">5</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster5_seurat, </span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_LN_CD45_files/figure-html/vln cond5 only-1.png" class="img-fluid" width="768"></p>
 </div>

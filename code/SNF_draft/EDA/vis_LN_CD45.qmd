@@ -73,9 +73,35 @@ seurat$cond <- seurat[[]] |>
 table(seurat$Sample, seurat$cond)
 table(seurat$cond)
 
+seurat$cell_types <- seurat$ident |> 
+  as.factor() |> 
+  forcats::fct_collapse("Naïve CD8 T cells" = c("0","1"),
+                        "Naïve CD4 T cells" = c("10"),
+                        "Memory/stem like CD8 T cells" = c("4","14"),
+                        "NK cells" = c("3"),
+                        "TGD"=c("5","13"),
+                        "regulatory T cells" = c("7", "12"),
+                        "DCs" = c("15","2","6", "8"),
+                        "LECs" =c("16"),
+                        "B cells" = c("9", "11"),
+                        "other" = c("17"))
+
+seurat$cell_types_nr <- seurat$ident |> 
+  as.factor() |> 
+  forcats::fct_collapse("0" = c("0","1"),
+                        "1" = c("10"),
+                        "2" = c("4","14"),
+                        "3" = c("3"),
+                        "4"=c("5","13"),
+                        "5" = c("7", "12"),
+                        "6" = c("15","2","6", "8"),
+                        "7" =c("16"),
+                        "8" = c("9", "11"),
+                        "9" = c("17"))
+
 DefaultAssay(seurat) <- "SCT"
 
-cluster_marker <- c("Cd3e", "Cd8a", "Cd4" ,"Tcf7", "Lef1", "Pdcd1", "Sell", "Tigit", "Cxcr4", "Ccr7", "Foxp3", "Ctla4", "Trdc", "Il12b", "Itgae", "Xcr1", "Cd207", "Notch2", "Itgax", "Itgam", "Il1a", "Cd80", "Cd19", "Prox1", "Pecam1", "Csf2rb", "Csf3r", "Il1r2", "Acta2", "Pdgfrb", "Ctsk", "Cd74", "H2-Ab1", "H2-Aa", "Krt15", "Cd79a", "Ccl3", "Ccl4", "Cd63", "Ifng", "Klra8")
+cluster_marker <- c("Ptprc", "Cd3e", "Cd8a", "Cd4" ,"Tcf7", "Lef1", "Pdcd1", "Sell", "Tigit", "Cxcr4", "Ccr7", "Foxp3", "Ctla4", "Trdc", "Il12b", "Itgae", "Xcr1", "Cd207", "Notch2", "Itgax", "Itgam", "Il1a", "Cd80", "Cd19", "Prox1", "Pecam1", "Csf2rb", "Csf3r", "Il1r2", "Acta2", "Pdgfrb", "Ctsk", "Cd74", "H2-Ab1", "H2-Aa", "Krt15", "Krt5", "Cd79a", "Ccl3", "Ccl4", "Cd63", "Cxcr3", "Fcgr1", "Fcgr3", "Ncam1", "Cd24a", "Klrb1c", "Cd62l", "Ly6c1", "Adgre1", "Cd44", "Nrp1", "Lag3", "Il2ra", "Icos", "Klf2", "Il7r", "Ifng", "Prf1", "Cd244a", "Cd160")
 
 cond_marker <- c("Cd3e", "Cd8a", "Cd4", "Tcf7", "Lef1", "Pdcd1", "Foxp3", "Cxcr4", "Ifng")
 ```
@@ -103,21 +129,25 @@ mean_feature
 ```{r}
 #| lable: cond-dist
 
-cond_dat <- seurat[[]] |> group_by(cond, ident) |>  summarise(n_cells = n())
+cond_dat <- seurat[[]] |> group_by(cond, cell_types) |>  summarise(n_cells = n())
+cond_dat_nr <- seurat[[]] |> group_by(cond, cell_types_nr) |>  summarise(n_cells = n())
 
-ggplot(cond_dat, aes(fill=cond, y=n_cells, x=ident)) + 
+ggplot(cond_dat, aes(fill=cond, y=n_cells, x=cell_types)) + 
   geom_bar(position="stack", stat="identity") + 
   scale_fill_manual(values = list("YUMM" = "#F28E2B", "YUMMER" = "#E15759")) + 
   theme_bw()
 
-ggplot(cond_dat, aes(fill=cond, y=n_cells, x=ident)) + 
+ggplot(cond_dat, aes(fill=cond, y=n_cells, x=cell_types)) + 
   geom_bar(position="fill", stat="identity") + 
   scale_fill_manual(values = list("YUMM" = "#F28E2B", "YUMMER" = "#E15759")) + 
   theme_bw()
 
-ggplot(cond_dat, aes(fill=ident, y=n_cells, x=cond)) + 
+ggplot(cond_dat, aes(fill=cell_types, x=n_cells, y=cond)) + 
   geom_bar(position="fill", stat="identity") + 
-  scale_fill_tableau(palette = "Tableau 20") + 
+  theme_bw()
+
+ggplot(cond_dat_nr, aes(fill=cell_types_nr, x=n_cells, y=cond)) + 
+  geom_bar(position="fill", stat="identity") + 
   theme_bw()
 
 ```
@@ -128,7 +158,7 @@ ggplot(cond_dat, aes(fill=ident, y=n_cells, x=cond)) +
 #| label: dimplot cond
 
 DimPlot(seurat, 
-        group.by = "ident", 
+        group.by = "cell_types", 
         split.by = "cond", 
         reduction = "umap",
         label = T) + 
@@ -136,13 +166,25 @@ DimPlot(seurat,
   theme(legend.position = "none")
 
 
-#Almut please put number of clusters inside the plot
+```
+
+```{r fig.width=9, fig.height=4}
+#| label: dimplot cond nr
+
+DimPlot(seurat, 
+        group.by = "cell_types_nr", 
+        split.by = "cond", 
+        reduction = "umap",
+        label = T) + 
+  ggtitle("") + 
+  theme(legend.position = "none")
+
 ```
 
 ## Cluster marker gene expression
 
 |                               |                                               |                            |                                                  |
-|----------------|--------------------|----------------|---------------------|
+|-----------------|-------------------|-----------------|--------------------|
 | **Cluster**                   | Genes                                         | **Cluster**                | Genes                                            |
 | **0 - naive CD8 T cells**     | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **9 - B cells**            | Cd79a, H2-Aa, H2-Ab1, Cd19, Sell                 |
 | **1** **- naive CD8 T cells** | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **10 - naive CD4 T cells** | Cd3e, Cd4, Tsf7                                  |

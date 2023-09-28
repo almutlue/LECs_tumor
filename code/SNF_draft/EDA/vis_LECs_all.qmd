@@ -118,17 +118,16 @@ ggplot(cond_dat, aes(fill=cond, y=n_cells, x=ident)) +
   scale_fill_tableau() + 
   theme_bw()
 
-ggplot(cond_dat, aes(fill=ident, y=n_cells, x=cond)) + 
-  geom_bar(position="fill", stat="identity") + 
-  scale_fill_tableau() + 
-  theme_bw()
+
 
 ```
 
 ### Distribution of cluster within each condition
 
 ```{r}
-
+ggplot(cond_dat, aes(fill=ident, x=n_cells, y=cond)) + 
+  geom_bar(position="fill", stat="identity") + 
+  theme_bw()
 
 
 ```
