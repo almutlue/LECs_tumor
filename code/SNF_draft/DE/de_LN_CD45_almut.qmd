@@ -1,0 +1,338 @@
+---
+title: "DE_LN_CD45"
+editor: visual
+---
+
+# Run Differential expression analysis within LEC subtypes
+
+Standard DE analysis using pseudobulk DE methods (note this differs from the FGCZ default analysis). We want to identify differentially expressed genes within LN cluster between *YUMMER and YUMM*.
+
+## Preamble
+
+```{r}
+#| label: load-libs
+#| echo: true
+#| output: false
+
+library(scran)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scuttle)
+library(pheatmap)
+library(patchwork)
+library(stringr)
+library(Seurat)
+library(ggbeeswarm)
+library(EnhancedVolcano)
+library(SingleCellExperiment)
+library(gridExtra)
+```
+
+```{r}
+#| label: plot fun
+#| code-fold: true
+
+# volcano plot function as defined in https://github.com/HelenaLC/TLS-Silina/blob/main/code/geo-02-differential.qmd
+
+.volcano <- \(df, title, fdr = 0.05, lfc = 1, select_lab = NULL) {
+  EnhancedVolcano(df, 
+    x = "logFC", y = "PValue",
+    FCcutoff = lfc, pCutoff = fdr,
+    selectLab = select_lab,
+    pointSize = 1.7, raster = TRUE,
+    title = title, subtitle = NULL,
+    lab = rownames(df), labSize = 4, 
+    drawConnectors = TRUE, widthConnectors = 0.5) +
+  guides(col = guide_legend(override.aes = list(alpha = 1, size = 5))) +
+  theme_bw(9) + theme(
+    aspect.ratio = 1,
+    legend.title = element_blank(),
+    panel.grid.minor = element_blank())
+}
+
+.heatmap <- \(mtx, de_genes, cd, title, fdr = 0.05, n_lfc = 20) {
+  top <- de_genes %>%
+    filter(PValue < fdr) |> 
+    slice_max(abs(logFC), n = n_lfc)
+  mtx_sub <- log1p(mtx[rownames(top),])
+  if (length(rownames(top)) < 2){
+    return(print("No de genes"))
+  }else{
+  hm <- pheatmap(mtx_sub, 
+      main = title, fontsize = 6,
+      col = rev(hcl.colors(51, "RdBu")),
+      scale = "row", show_colnames = FALSE, annotation_col = cd)
+  hm
+  }
+}
+
+
+
+```
+
+## Data object
+
+```{r}
+#| label: data
+#| 
+seurat<- readRDS(file.path("..", "..","..","data", "scData_LN_tumor.rds"))
+
+# correct condition assignment!!
+seurat$cond <- seurat[[]] |> 
+  mutate(
+    cond = case_when(
+       str_detect(Sample, "YUMM[0-9]") ~ "YUMM",
+       str_detect(Sample, "YUMMER") ~ "YUMMER",
+       str_detect(Sample, "Skin") ~ "skin"
+    )
+  ) |> select(cond)
+
+
+# Pool samples
+seurat$sample_pooled <- seurat$Sample |> 
+  forcats::fct_collapse("LnYUMM1" = c("LnYUMM1_1A", "LnYUMM1_1B"),
+                        "LnYUMM2" = c("LnYUMM2_1A", "LnYUMM2_1B"),
+                        "LnYUMM5" = c("LnYUMM5_2A", "LnYUMM5_2B"),
+                        "LnYUMM6" = c("LnYUMM6_2A", "LnYUMM6_2B"),
+                        "LnYUMMER4" = c("LnYUMMER4_1A", "LnYUMMER4_1B"),
+                        "LnYUMMER7" = c("LnYUMMER7_2A", "LnYUMMER7_2B"),
+                        "LnYUMMER8" = c("LnYUMMER8_2A", "LnYUMMER8_2B"))
+
+
+seurat$cell_types <- seurat$ident |> 
+  as.factor() |> 
+  forcats::fct_collapse(#"Naïve CD8 T cells" = c("0","1"),
+                        "Naïve CD4 T cells" = c("10"),
+                        #"Memory/stem like CD8 T cells" = c("4","14"),
+                        "Naive/memory/stem like CD8 T cells" = c("0","1","4","14"),
+                        "NK cells" = c("3"),
+                        #"TGD"=c("5","13"),
+                        "regulatory T cells" = c("7", "12"),
+                        "DCs/TGD" = c("15","2","6", "8", "5","13"),
+                        "LECs" =c("16"),
+                        "B cells" = c("9", "11"),
+                        "other" = c("17"))
+
+# check assignment
+table(seurat$sample_pooled, seurat$cond)
+table(seurat$cond)
+
+
+# switch to SingleCellExperiment object
+sce <- as.SingleCellExperiment(seurat)
+saveRDS(sce, "../../../data/sce_LN_CD45.rds")
+
+```
+
+## De analysis
+
+##### cluster ids
+
+```{r}
+#| label: de
+
+# creating pseudobulks
+summed <- aggregateAcrossCells(sce,
+                               id=colData(sce)[,c("ident", "sample_pooled")])
+# filter min cells
+summed.filt <- summed[,summed$ncells >= 10]
+print(table(summed.filt$cond, summed.filt$ident))
+
+# Model design
+design <- model.matrix(~ cond, as.data.frame(colData(summed.filt)))
+
+# To specify the contrast/coef. Here we use condYUMMER. So we test for genes differentially expressed in YUMMER compared to YUMM. 
+colnames(design)
+
+
+# Differential expression
+# --- I renamed this to be clear about the direction of the comparison ---#
+yummer_yumm <- pseudoBulkDGE(summed.filt, 
+    label=summed.filt$ident,
+    design=~cond,
+    coef="condYUMMER",
+    condition=summed.filt$cond 
+)
+
+
+# Number of DE genes per cluster in yummer_yumm
+is.de <- decideTestsPerLabel(yummer_yumm, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#write as output
+write_de_res <- function(de_obj, res_nam){
+  res_list <- lapply(names(de_obj), function(clust, nam = res_nam){
+    cur.res <- de_obj[[clust]]
+    res <- cur.res[order(cur.res$PValue),] |> 
+      as.data.frame() |> 
+      filter(!is.na(PValue))
+    ## --- adapt path DE/ to local output path -----##
+    write.csv(res, paste0("../../../out/DE/", nam, "_", clust, ".csv"))
+    res
+  })
+}
+
+de_yummer_yumm <- write_de_res(yummer_yumm, res_nam = "yummer_yumm")
+
+```
+
+##### Cell type idents
+
+```{r}
+#| label: de cell types
+
+# creating pseudobulks
+summed_ct <- aggregateAcrossCells(sce,
+                               id=colData(sce)[,c("cell_types", "sample_pooled")])
+# filter min cells
+summed_ct.filt <- summed_ct[,summed_ct$ncells >= 10]
+print(table(summed_ct.filt$cond, summed_ct.filt$cell_types))
+
+# Model design
+design <- model.matrix(~ cond, as.data.frame(colData(summed_ct.filt)))
+
+# To specify the contrast/coef. Here we use condYUMMER. So we test for genes differentially expressed in YUMMER compared to YUMM. 
+colnames(design)
+
+
+# Differential expression
+# --- I renamed this to be clear about the direction of the comparison ---#
+yummer_yumm_ct <- pseudoBulkDGE(summed_ct.filt, 
+    label=summed_ct.filt$cell_types,
+    design=~cond,
+    coef="condYUMMER",
+    condition=summed_ct.filt$cond 
+)
+
+
+# Number of DE genes per cluster in yummer_yumm
+is.de <- decideTestsPerLabel(yummer_yumm_ct, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#write as output
+ct_res <- yummer_yumm_ct
+names(ct_res) <- gsub(" ", "_", names(ct_res))
+names(ct_res) <- gsub("/", "-", names(ct_res))
+
+de_yummer_yumm_ct <- write_de_res(ct_res, res_nam = "yummer_yumm_ct")
+```
+
+## Plot results
+
+**yummer vs yumm all genes**
+
+```{r, fig.width=7, fig.height=25}
+#| label: volcano yumm_yummer all
+#| warning: FALSE
+
+# yummer compared to reference condition yumm
+
+plot_list <- lapply(names(yummer_yumm), \(.) {
+  df = yummer_yumm[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, )
+  }
+)
+
+wrap_plots(plot_list, ncol = 2) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+
+
+```
+
+##### volcano cell types
+
+```{r, fig.width=7, fig.height=25}
+#| label: volcano yumm_yummer ct all
+#| warning: FALSE
+
+# yummer compared to reference condition yumm
+
+plot_list <- lapply(names(yummer_yumm_ct), \(.) {
+  df = yummer_yumm_ct[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, )
+  }
+)
+
+wrap_plots(plot_list, ncol = 2) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+
+
+```
+
+#### yummer vs yumm: selected genes
+
+```{r, fig.height=15, fig.width=8}
+#| label: volcano yummer yumm selected
+#| warning: FALSE
+
+plot_list <- lapply(names(yummer_yumm), \(.) {
+  df = yummer_yumm[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Cd4"))
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, ncol = 3) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+### Heatmap plots
+
+### yumm vs yummer
+
+```{r, fig.width= 6, fig.height=5}
+
+for (. in names(yummer_yumm)) {
+    cat("####", ., "\n")
+    sub <- subset(x = seurat, idents = .)
+    sub <- subset(x = sub, subset = cond %in% c("YUMMER", "YUMM"))
+    mtx <- GetAssayData(object = sub, slot = 'data')
+    top <- as.data.frame(yummer_yumm[[.]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 20)
+    mtx_sub <- log1p(mtx[rownames(top),])
+    cd <- data.frame(sub[[]] |> select('cond'))
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "row", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
+```
+
+### Pseudobulk heatmap
+
+```{r}
+#| label: pseudobulk heatmap
+for (. in names(yummer_yumm)) {
+    cat("####", ., "\n")
+    sub <- summed.filt[,colData(summed.filt)$ident %in% .]
+    mtx <- counts(sub)
+    top <- as.data.frame(yummer_yumm[[.]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 20)
+    mtx_sub <- log1p(mtx[rownames(top),])
+    colnames(mtx_sub) <- paste0("bulk_", seq_along(1:ncol(sub)))
+    cd <- data.frame("cond" = sub$cond)
+    rownames(cd) <- colnames(mtx_sub)
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "none", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
+```

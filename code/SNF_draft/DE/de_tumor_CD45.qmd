@@ -1,0 +1,462 @@
+---
+title: "DE_LECs"
+editor: visual
+---
+
+# Run Differential expression analysis within LEC subtypes
+
+Standard DE analysis using pseudobulk DE methods (note this differs from the FGCZ default analysis). We want to identify differentially expressed genes within LEC cluster between all groups of *skin*, *YUMMER and YUMM*.
+
+## Preamble
+
+```{r}
+#| label: load-libs
+#| echo: true
+#| output: false
+
+library(scran)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scuttle)
+library(pheatmap)
+library(patchwork)
+library(stringr)
+library(Seurat)
+library(ggbeeswarm)
+library(EnhancedVolcano)
+library(SingleCellExperiment)
+library(gridExtra)
+```
+
+```{r}
+#| label: plot fun
+#| code-fold: true
+
+# volcano plot function as defined in https://github.com/HelenaLC/TLS-Silina/blob/main/code/geo-02-differential.qmd
+
+.volcano <- \(df, title, fdr = 0.05, lfc = 1, select_lab = NULL) {
+  EnhancedVolcano(df, 
+    x = "logFC", y = "PValue",
+    FCcutoff = lfc, pCutoff = fdr,
+    selectLab = select_lab,
+    pointSize = 1.7, raster = TRUE,
+    title = title, subtitle = NULL,
+    lab = rownames(df), labSize = 4, 
+    drawConnectors = TRUE, widthConnectors = 0.5) +
+  guides(col = guide_legend(override.aes = list(alpha = 1, size = 5))) +
+  theme_bw(9) + theme(
+    aspect.ratio = 1,
+    legend.title = element_blank(),
+    panel.grid.minor = element_blank())
+}
+
+.heatmap <- \(mtx, de_genes, cd, title, fdr = 0.05, n_lfc = 20) {
+  top <- de_genes %>%
+    filter(PValue < fdr) |> 
+    slice_max(abs(logFC), n = n_lfc)
+  mtx_sub <- log1p(mtx[rownames(top),])
+  if (length(rownames(top)) < 2){
+    return(print("No de genes"))
+  }else{
+  hm <- pheatmap(mtx_sub, 
+      main = title, fontsize = 6,
+      col = rev(hcl.colors(51, "RdBu")),
+      scale = "row", show_colnames = FALSE, annotation_col = cd)
+  hm
+  }
+}
+
+```
+
+## Data object
+
+```{r}
+#| label: data
+
+seurat<- readRDS(file.path("..", "..","..","data", "scData_all_tumor_skin.rds"))
+
+
+# correct condition assignment!!
+seurat$cond <- seurat[[]] |> 
+  mutate(
+    cond = case_when(
+       str_detect(Sample, "YUMM[0-9]") ~ "YUMM",
+       str_detect(Sample, "YUMMER") ~ "YUMMER",
+       str_detect(Sample, "Skin") ~ "skin"
+    )
+  ) |> select(cond)
+
+#merge cell types
+seurat$cell_types <- seurat$ident |> 
+  as.factor() |> 
+  forcats::fct_collapse("monocytes/macrophages" = c("0","1","2","5","6","18","22"),
+                        "DCs" = c("4", "12", "19"),
+                        "CD4 T cells" = c("10"),
+                        "CD8 T cells" = c("7", "16"),
+                        "other T cells" = c("3", "11", "15", "23", "24"),
+                        "endothelial cells/fibroblasts" = c("8", "9", "13"),
+                        "mast cells" = c("14"),
+                        "B cells" = c("21"),
+                        "other" = c("17", "20"))
+
+# check assignment
+seurat$sample_pooled <- seurat$Sample |> 
+  forcats::fct_collapse("TumorYUMM1" = c("TumorYUMM1_1A", "TumorYUMM1_1B"),
+                        "TumorYUMM2" = c("TumorYUMM2_1A", "TumorYUMM2_1B"),
+                        "TumorYUMM5" = c("TumorYUMM5_2A", "TumorYUMM5_2B"),
+                        "TumorYUMM6" = c("TumorYUMM6_2A", "TumorYUMM6_2B"),
+                        "TumorYUMMER3" = c("TumorYUMMER3_1A", "TumorYUMMER3_1B"),
+                        "TumorYUMMER4" = c("TumorYUMMER4_1A", "TumorYUMMER4_1B"),
+                        "TumorYUMMER7" = c("TumorYUMMER7_2A", "TumorYUMMER7_2B"),
+                        "TumorYUMMER8" = c("TumorYUMMER8_2A", "TumorYUMMER8_2B"))
+#table(seurat$Sample, seurat$cond)
+table(seurat$sample_pooled, seurat$cond)
+table(seurat$cond)
+
+# switch to SingleCellExperiment object
+sce <- as.SingleCellExperiment(seurat)
+saveRDS(sce, "../../../data/sce_tumor_CD45.rds")
+
+```
+
+DE analysis
+
+```{r}
+#| label: de
+
+cond_de <- function(cond1, cond2){
+  # subset sce
+  sce_sub <- sce[,sce$cond %in% c(cond1, cond2)]
+  # creating pseudobulks
+  summed <- aggregateAcrossCells(sce_sub, 
+                                 id=colData(sce_sub)[,c("cell_types","sample_pooled")])
+  # filter min cells
+  summed.filt <- summed[,summed$ncells >= 10]
+  print(table(summed.filt$cond, summed.filt$cell_types))
+  
+  # de
+  design <- model.matrix(~factor(summed.filt$cond), summed.filt$sample_pooled)
+  de.results <- pseudoBulkDGE(summed.filt, 
+    label=summed.filt$cell_types,
+    design=~factor(cond),
+    coef=ncol(design),
+    condition=summed.filt$cond 
+)
+}
+
+skin_yumm <- cond_de("skin", "YUMM")
+#yummer_yumm <- cond_de("YUMMER", "YUMM")
+yumm_yummer <- cond_de("YUMM", "YUMMER")
+skin_yummer <- cond_de("skin","YUMMER")
+
+
+#DE skin_yumm
+is.de <- decideTestsPerLabel(skin_yumm, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#DE yumm_yummer
+is.de <- decideTestsPerLabel(yumm_yummer, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#DE skin_yummer
+is.de <- decideTestsPerLabel(skin_yummer, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#write as output
+write_de_res <- function(de_obj, res_nam){
+  res_list <- lapply(names(de_obj), function(clust, nam = res_nam){
+    cur.res <- de_obj[[clust]]
+    res <- cur.res[order(cur.res$PValue),] |> 
+      as.data.frame() |> 
+      filter(!is.na(PValue))
+    clust_nam <- gsub(" ", "_", clust)
+    clust_nam <- gsub("/", "-", clust_nam)
+    ## --- adapt path until DE/ to local output path -----##
+    write.csv(res, paste0("../../../out/DE/tumor_CD45_", nam, "_", clust_nam, ".csv"))
+    res
+  })
+}
+
+de_skin_yumm <- write_de_res(skin_yumm, res_nam = "skin_yumm")
+de_skin_yumm <- write_de_res(yumm_yummer, res_nam = "yumm_yummer")
+de_skin_yumm <- write_de_res(skin_yummer, res_nam = "skin_yummer")
+
+
+```
+
+## Plot results
+
+#### skin vs yumm
+
+```{r fig.width=7, fig.height=16}
+#| label: volcano
+#| warning: FALSE
+
+#first condition (skin) = baseline, compared to second condition
+plot_list <- lapply(names(skin_yumm), \(.) {
+  df = skin_yumm[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+
+```
+
+**skin vs yumm selected genes**
+
+```{r fig.width=7, fig.height=16}
+#| label: volcano selected
+#| warning: FALSE
+
+#first condition (skin) = baseline, compared to second condition
+plot_list <- lapply(names(skin_yumm), \(.) {
+  df = skin_yumm[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Lyve1", "Cxcl9", "Cxcl10", "Sema3a", "CD112", "Ccl21a", "Reln", "Cxcl12", "H2-Aa", "H2-Ab1", "Cd74", "Ctss", "Ccr2", "Il10", "Alcam", "Esam", "Cd274", "Ifng","Tnfa"))
+  #.volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+
+```
+
+#### yumm vs yummer
+
+```{r fig.width=7, fig.height=25}
+#| label: volcano yumm_yummer
+#| warning: FALSE
+
+plot_list <- lapply(names(yumm_yummer), \(.) {
+  df = yumm_yummer[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, ncol = 2) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+**yumm vs yummer selected genes**
+
+```{r fig.width=7, fig.height=25}
+#| label: volcano yumm_yummer selected
+#| warning: FALSE
+
+#first condition (skin) = baseline, compared to second condition
+plot_list <- lapply(names(yumm_yummer), \(.) {
+  df = yumm_yummer[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Ccr7", "Cxcr3", "Itgam", "Itgal", "Itgb2"))
+  #.volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, ncol = 2) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+
+
+```
+
+#### skin vs yummer
+
+```{r, fig.height=15, fig.width=8}
+#| label: volcano skin yummer
+#| warning: FALSE
+
+plot_list <- lapply(names(skin_yummer), \(.) {
+  df = skin_yummer[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Lyve1"))
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+**skin vs yummer selected cluster 2**
+
+```{r fig.width=7, fig.height=16}
+#| label: volcano skin_yummer selected2
+#| warning: FALSE
+
+#first condition (skin) = baseline, compared to second condition
+plot_list <- lapply(names(skin_yummer), \(.) {
+  df = skin_yummer[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Lyve1", "Cxcl9", "Cxcl10", "Sema3a", "CD112", "Ccl21a", "Reln", "Cxcl12", "H2-Aa", "H2-Ab1", "Cd74", "Ctss", "Ccr2", "Il10", "Alcam", "Esam", "Cd274", "Ifng","Tnfa","Sema7a", "Sparc", "Ptx3", "H2-Aa", "Cd74", "Ctss", "Gbp4", "Stat1", "Ptn", "Cd300lg", "Icam1","Vcam1"))
+  #.volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+**skin vs yummer selected cluster 5**
+
+```{r fig.width=7, fig.height=16}
+#| label: volcano skin_yummer selected5
+#| warning: FALSE
+
+#first condition (skin) = baseline, compared to second condition
+plot_list <- lapply(names(skin_yummer), \(.) {
+  df = skin_yummer[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Cxcl9", "Cxcl10", "CD112", "Ccl21a", "Reln", "Cxcl12", "H2-Aa", "H2-Ab1", "Cd74", "Ctss", "Ccr2", "Il10", "Alcam", "Esam", "Ifng","Tnfa","Sema7a", "Sparc", "Ptx3", "H2-Aa", "Cd74", "Ctss", "Stat1", "Ptn", "Cd300lg", "Stab2", "H2-Q6", "H2-Eb1", "H2-Q7"))
+  #.volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+### Heatmap plots
+
+#### skin vs yumm
+
+```{r, fig.width= 6, fig.height=5}
+
+Idents(seurat) <- "cell_types"
+                   
+for (. in names(skin_yumm)) {
+    cat("####", ., "\n")
+    sub <- subset(x = seurat, idents = .)
+    sub <- subset(x = sub, subset = cond %in% c("YUMM", "skin"))
+    mtx <- GetAssayData(object = sub, slot = "scale.data")
+    top <- as.data.frame(skin_yumm[[.]]) %>%
+      filter(PValue < 0.05) |> 
+      slice_max(abs(logFC), n = 50)
+    top_nam <- rownames(top)[which(rownames(top) %in% rownames(mtx))]
+    mtx_sub <- log1p(mtx[top_nam,])
+    mtx_sub[mtx_sub < -4] <- -4
+    mtx_sub[mtx_sub > 4] <- 4
+    cd <- data.frame(sub[[]] |> select('cond'))
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "row", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
+```
+
+#### yumm vs yummer
+
+```{r, fig.width= 6, fig.height=5}
+
+for (. in names(yumm_yummer)) {
+    cat("####", ., "\n")
+    sub <- subset(x = seurat, idents = .)
+    sub <- subset(x = sub, subset = cond %in% c("YUMM", "YUMMER"))
+    mtx <- GetAssayData(object = sub, slot = "data")
+    top <- as.data.frame(yumm_yummer[[.]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 40)
+    top_nam <- rownames(top)
+    mtx_sub <- log1p(mtx[top_nam,])
+    cd <- data.frame(sub[[]] |> select('cond'))
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "row", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
+```
+
+#### skin vs yummer
+
+```{r, fig.width= 6, fig.height=5}
+
+for (. in names(skin_yummer)) {
+    cat("####", ., "\n")
+    sub <- subset(x = seurat, idents = .)
+    sub <- subset(x = sub, subset = cond %in% c("YUMMER", "skin"))
+    mtx <- GetAssayData(object = sub, slot = 'data')
+    top <- as.data.frame(skin_yummer[[.]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 40)
+    mtx_sub <- log1p(mtx[rownames(top),])
+    cd <- data.frame(sub[[]] |> select('cond'))
+    hm <- pheatmap(mtx_sub, 
+        main = ., fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "row", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+    print(hm); cat("\n\n")
+}
+
+
+```
+
+### Pseudobulk heatmap
+
+```{r}
+#| label: pseudobulk heatmap
+
+pb_heatmap <- function(cond1, cond2, de_res){
+  sce_sub <- sce[,sce$cond %in% c(cond1, cond2)]
+  summed <- aggregateAcrossCells(sce_sub, 
+                                 id=colData(sce_sub)[,c("cell_types", "sample_pooled")])
+  summed.filt <- summed[,summed$ncells >= 10]
+  plot_list <- lapply(names(de_res), function(clust){
+    sub <- summed.filt[,colData(summed.filt)$cell_types %in% clust]
+    mtx <- counts(sub)
+    top <- as.data.frame(de_res[[clust]]) %>%
+    filter(PValue < 0.05) |> 
+    slice_max(abs(logFC), n = 30)
+    mtx_sub <- log1p(mtx[rownames(top),])
+    colnames(mtx_sub) <- paste0("bulk_", seq_along(1:ncol(sub)))
+    cd <- data.frame("cond" = sub$cond)
+    rownames(cd) <- colnames(mtx_sub)
+    hm <- pheatmap(mtx_sub, 
+        main = clust, fontsize = 6,
+        col = rev(hcl.colors(51, "RdBu")),
+        scale = "none", 
+        show_colnames = FALSE, 
+        cluster_cols = FALSE,
+        annotation_col = cd)
+  })
+}
+
+
+
+```
+
+#### Pseudobulk heatmap yumm - yummer
+
+```{r}
+pb_heatmap("YUMM", "YUMMER", yumm_yummer)
+```
+
+#### Pseudobulk heatmap skin - yummer
+
+```{r}
+pb_heatmap("skin", "YUMMER", skin_yummer)
+```
+
+#### Pseudobulk heatmap skin - yumm
+
+```{r}
+pb_heatmap("skin", "YUMM", skin_yumm)
+```

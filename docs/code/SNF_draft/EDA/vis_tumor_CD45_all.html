@@ -136,6 +136,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_LECs.html" rel="" target="">
  <span class="dropdown-text">DE_LECs</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_tumor_CD45.html" rel="" target="">
+ <span class="dropdown-text">DE_LECs</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_LN_CD45_almut.html" rel="" target="">
+ <span class="dropdown-text">DE_LN_CD45</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_tumor_vs_LN_CD45.html" rel="" target="">
+ <span class="dropdown-text">DE_tumor_vs_LN_CD45</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -326,12 +338,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"B cells"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"21"</span>),</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"other"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"17"</span>, <span class="st">"20"</span>))</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">DefaultAssay</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"SCT"</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>cluster_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span> ,<span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Sell"</span>, <span class="st">"Tigit"</span>, <span class="st">"Cxcr4"</span>, <span class="st">"Ccr7"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Ctla4"</span>, <span class="st">"Trdc"</span>, <span class="st">"Il12b"</span>, <span class="st">"Itgae"</span>, <span class="st">"Xcr1"</span>, <span class="st">"Cd207"</span>, <span class="st">"Notch2"</span>, <span class="st">"Itgax"</span>, <span class="st">"Itgam"</span>, <span class="st">"Il1a"</span>, <span class="st">"Cd80"</span>, <span class="st">"Cd19"</span>, <span class="st">"Prox1"</span>, <span class="st">"Pecam1"</span>, <span class="st">"Csf2rb"</span>, <span class="st">"Csf3r"</span>, <span class="st">"Il1r2"</span>, <span class="st">"Acta2"</span>, <span class="st">"Pdgfrb"</span>, <span class="st">"Ctsk"</span>, <span class="st">"Cd74"</span>, <span class="st">"H2-Ab1"</span>, <span class="st">"H2-Aa"</span>, <span class="st">"Krt15"</span>, <span class="st">"Krt5"</span>, <span class="st">"Cd79a"</span>, <span class="st">"Ccl3"</span>, <span class="st">"Ccl4"</span>, <span class="st">"Cd63"</span>)</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>cond_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span>, <span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Cxcr4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>seurat<span class="sc">$</span>cell_types_nr <span class="ot">&lt;-</span> seurat<span class="sc">$</span>ident <span class="sc">|&gt;</span> </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  forcats<span class="sc">::</span><span class="fu">fct_collapse</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">"1"</span>,<span class="st">"2"</span>,<span class="st">"5"</span>,<span class="st">"6"</span>,<span class="st">"18"</span>,<span class="st">"22"</span>),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"2"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"4"</span>, <span class="st">"12"</span>, <span class="st">"19"</span>),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"3"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"10"</span>),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"4"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"7"</span>, <span class="st">"16"</span>),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"5"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"3"</span>, <span class="st">"11"</span>, <span class="st">"15"</span>, <span class="st">"23"</span>, <span class="st">"24"</span>),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"6"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"8"</span>, <span class="st">"9"</span>, <span class="st">"13"</span>),</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"7"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"14"</span>),</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"8"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"21"</span>),</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"9"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"17"</span>, <span class="st">"20"</span>))</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="fu">DefaultAssay</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"SCT"</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>cluster_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span> ,<span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Sell"</span>, <span class="st">"Tigit"</span>, <span class="st">"Cxcr4"</span>, <span class="st">"Ccr7"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Ctla4"</span>, <span class="st">"Trdc"</span>, <span class="st">"Il12b"</span>, <span class="st">"Itgae"</span>, <span class="st">"Xcr1"</span>, <span class="st">"Cd207"</span>, <span class="st">"Notch2"</span>, <span class="st">"Itgax"</span>, <span class="st">"Itgam"</span>, <span class="st">"Il1a"</span>, <span class="st">"Cd80"</span>, <span class="st">"Cd19"</span>, <span class="st">"Prox1"</span>, <span class="st">"Pecam1"</span>, <span class="st">"Csf2rb"</span>, <span class="st">"Csf3r"</span>, <span class="st">"Il1r2"</span>, <span class="st">"Acta2"</span>, <span class="st">"Pdgfrb"</span>, <span class="st">"Ctsk"</span>, <span class="st">"Cd74"</span>, <span class="st">"H2-Ab1"</span>, <span class="st">"H2-Aa"</span>, <span class="st">"Krt15"</span>, <span class="st">"Krt5"</span>, <span class="st">"Cd79a"</span>, <span class="st">"Ccl3"</span>, <span class="st">"Ccl4"</span>, <span class="st">"Cd63"</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>cond_marker <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Cd3e"</span>, <span class="st">"Cd8a"</span>, <span class="st">"Cd4"</span>, <span class="st">"Tcf7"</span>, <span class="st">"Lef1"</span>, <span class="st">"Pdcd1"</span>, <span class="st">"Foxp3"</span>, <span class="st">"Cxcr4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="overview" class="level2">
@@ -392,34 +416,64 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid" width="672"></p>
 </div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat, <span class="fu">aes</span>(<span class="at">fill=</span>cell_types, <span class="at">x=</span><span class="st">""</span>, <span class="at">y=</span>n_cells)) <span class="sc">+</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"fill"</span>, <span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">color=</span><span class="st">"white"</span>) <span class="sc">+</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_polar</span>(<span class="st">"y"</span>, <span class="at">start=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Tumor CD45"</span>) <span class="sc">+</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>cond) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vis_tumor_CD45_all_files/figure-html/unnamed-chunk-4-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cond_dat_filtered <span class="ot">&lt;-</span> cond_dat <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span>cond <span class="sc">%in%</span> <span class="st">"skin"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cond_dat_filtered, <span class="fu">aes</span>(<span class="at">fill=</span>cell_types, <span class="at">x=</span><span class="st">""</span>, <span class="at">y=</span>n_cells)) <span class="sc">+</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position=</span><span class="st">"fill"</span>, <span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">color=</span><span class="st">"white"</span>) <span class="sc">+</span> </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_polar</span>(<span class="st">"y"</span>, <span class="at">start=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Tumor CD45"</span>) <span class="sc">+</span> </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>cond) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vis_tumor_CD45_all_files/figure-html/unnamed-chunk-4-5.png" class="img-fluid" width="672"></p>
+</div>
 </div>
 </section>
 <section id="distribution-of-cells-within-umap" class="level3">
 <h3 class="anchored" data-anchor-id="distribution-of-cells-within-umap">Distribution of cells within umap</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, <span class="at">group.by =</span> <span class="st">"ident"</span>, </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>, </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) <span class="sc">+</span> </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, <span class="at">group.by =</span> <span class="st">"ident"</span>, </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) <span class="sc">+</span> </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/dimplot cond-1.png" class="img-fluid" width="864"></p>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Almut please put number of clusters inside the plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Almut please put number of clusters inside the plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="distribution-of-broad-cell-types" class="level3">
 <h3 class="anchored" data-anchor-id="distribution-of-broad-cell-types">Distribution of broad cell types</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, <span class="at">group.by =</span> <span class="st">"cell_types"</span>, </span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>, </span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(seurat, <span class="at">group.by =</span> <span class="st">"cell_types"</span>, </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/broad ct umap-1.png" class="img-fluid" width="1152"></p>
 </div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sub <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> seurat, <span class="at">subset =</span> cond <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"YUMM"</span>, <span class="st">"YUMMER"</span>))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">DimPlot</span>(sub, <span class="at">group.by =</span> <span class="st">"cell_types_nr"</span>, </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>, </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">reduction =</span> <span class="st">"umap"</span>, </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">label =</span> T) <span class="sc">+</span> </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">""</span>) </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#ggsave("../../../out/EDA/umap_yum_yummer_tumor_cD45.pdf", p)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -522,7 +576,7 @@ Macrophages</strong></td>
 <section id="dimplots" class="level3">
 <h3 class="anchored" data-anchor-id="dimplots">Dimplots</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/dimplots-1.png" class="img-fluid" width="1152"></p>
 </div>
@@ -531,18 +585,18 @@ Macrophages</strong></td>
 <section id="violinplots" class="level3">
 <h3 class="anchored" data-anchor-id="violinplots">Violinplots</h3>
 <div class="cell" data-lable="violin marker">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Idents</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"cell_types"</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">assay =</span> <span class="st">"SCT"</span>, <span class="at">add.noise =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Idents</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"cell_types"</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">assay =</span> <span class="st">"SCT"</span>, <span class="at">add.noise =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="vis_tumor_CD45_all_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="1344"></p>
+<p><img src="vis_tumor_CD45_all_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="1344"></p>
 </div>
 </div>
 </section>
 <section id="dotplots" class="level3">
 <h3 class="anchored" data-anchor-id="dotplots">Dotplots</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker) <span class="sc">+</span> </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cluster_marker) <span class="sc">+</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/dotplot-1.png" class="img-fluid" width="1248"></p>
 </div>
@@ -554,7 +608,7 @@ Macrophages</strong></td>
 <section id="expression-by-condition-as-dimplot" class="level3">
 <h3 class="anchored" data-anchor-id="expression-by-condition-as-dimplot">Expression by condition as Dimplot</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cond_marker, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">split.by =</span> <span class="st">"cond"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(<span class="at">object =</span> seurat, <span class="at">features =</span> cond_marker, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">split.by =</span> <span class="st">"cond"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/dim cond-1.png" class="img-fluid" width="960"></p>
 </div>
@@ -563,15 +617,15 @@ Macrophages</strong></td>
 <section id="expression-as-violin-plot-grouped-by-cluster" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-grouped-by-cluster">Expression as violin plot grouped by cluster</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker, </span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F, </span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust=</span><span class="dv">1</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker, </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F, </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">split.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust=</span><span class="dv">1</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/vln cond cluster-1.png" class="img-fluid" width="768"></p>
 </div>
@@ -580,15 +634,15 @@ Macrophages</strong></td>
 <section id="expression-as-violin-plot-clusters-combined" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-clusters-combined">Expression as violin plot clusters combined</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> seurat, </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/vln cond only-1.png" class="img-fluid" width="768"></p>
 </div>
@@ -597,21 +651,21 @@ Macrophages</strong></td>
 <section id="expression-as-violin-plot-cluster-7" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-cluster-7">Expression as violin plot cluster 7</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Idents</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"ident"</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 7</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>cluster7_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">7</span>)</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster7_seurat, </span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Idents</span>(seurat) <span class="ot">&lt;-</span> <span class="st">"ident"</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 7</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>cluster7_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">7</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster7_seurat, </span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> F,</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/vln cond7 only-1.png" class="img-fluid" width="768"></p>
 </div>
@@ -620,19 +674,19 @@ Macrophages</strong></td>
 <section id="expression-as-violin-plot-cluster-16" class="level3">
 <h3 class="anchored" data-anchor-id="expression-as-violin-plot-cluster-16">Expression as violin plot cluster 16</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 16</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>cluster16_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">16</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster16_seurat, </span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset your Seurat object to only include cells from cluster 16</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>cluster16_seurat <span class="ot">&lt;-</span> <span class="fu">subset</span>(seurat, <span class="at">idents =</span> <span class="dv">16</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot for cluster 7</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(<span class="at">object =</span> cluster16_seurat, </span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">features =</span> cond_marker,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">group.by =</span> <span class="st">"cond"</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">assay =</span> <span class="st">"SCT"</span>, </span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">add.noise =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_tableau</span>() <span class="sc">&amp;</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="vis_tumor_CD45_all_files/figure-html/vln cond716 only-1.png" class="img-fluid" width="768"></p>
 </div>

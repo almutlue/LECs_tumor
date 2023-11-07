@@ -150,6 +150,21 @@ ggplot(cond_dat_nr, aes(fill=cell_types_nr, x=n_cells, y=cond)) +
   geom_bar(position="fill", stat="identity") + 
   theme_bw()
 
+
+ggplot(cond_dat_nr, aes(fill=cell_types_nr, x="", y=n_cells)) + 
+  geom_bar(position="fill", stat="identity", color="white") + 
+  coord_polar("y", start=0) +
+  theme_void() + 
+  ggtitle("LN CD45") + 
+  facet_wrap(~cond) 
+
+  
+ggplot(cond_dat, aes(fill=cell_types, x="", y=n_cells)) + 
+  geom_bar(position="fill", stat="identity", color="white") + 
+  coord_polar("y", start=0) +
+  theme_void() + 
+  ggtitle("LN CD45") + 
+  facet_wrap(~cond) 
 ```
 
 ### Distribution of cells within umap
@@ -184,7 +199,7 @@ DimPlot(seurat,
 ## Cluster marker gene expression
 
 |                               |                                               |                            |                                                  |
-|-----------------|-------------------|-----------------|--------------------|
+|-------------------------------|-----------------------------------------------|----------------------------|--------------------------------------------------|
 | **Cluster**                   | Genes                                         | **Cluster**                | Genes                                            |
 | **0 - naive CD8 T cells**     | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **9 - B cells**            | Cd79a, H2-Aa, H2-Ab1, Cd19, Sell                 |
 | **1** **- naive CD8 T cells** | Cd3e, Cd8a, Tcf7, Lef1, Sell                  | **10 - naive CD4 T cells** | Cd3e, Cd4, Tsf7                                  |

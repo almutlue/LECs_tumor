@@ -85,6 +85,18 @@ seurat$cell_types <- seurat$ident |>
                         "B cells" = c("21"),
                         "other" = c("17", "20"))
 
+seurat$cell_types_nr <- seurat$ident |> 
+  as.factor() |> 
+  forcats::fct_collapse("1" = c("0","1","2","5","6","18","22"),
+                        "2" = c("4", "12", "19"),
+                        "3" = c("10"),
+                        "4" = c("7", "16"),
+                        "5" = c("3", "11", "15", "23", "24"),
+                        "6" = c("8", "9", "13"),
+                        "7" = c("14"),
+                        "8" = c("21"),
+                        "9" = c("17", "20"))
+
 
 DefaultAssay(seurat) <- "SCT"
 
@@ -132,6 +144,23 @@ ggplot(cond_dat, aes(fill=cell_types, y=n_cells, x=cond)) +
   scale_fill_tableau() + 
   theme_bw()
 
+
+ggplot(cond_dat, aes(fill=cell_types, x="", y=n_cells)) + 
+  geom_bar(position="fill", stat="identity", color="white") + 
+  coord_polar("y", start=0) +
+  theme_void() + 
+  ggtitle("Tumor CD45") + 
+  facet_wrap(~cond) 
+
+cond_dat_filtered <- cond_dat |> filter(!cond %in% "skin")
+
+ggplot(cond_dat_filtered, aes(fill=cell_types, x="", y=n_cells)) + 
+  geom_bar(position="fill", stat="identity", color="white") + 
+  coord_polar("y", start=0) +
+  theme_void() + 
+  ggtitle("Tumor CD45") + 
+  facet_wrap(~cond) 
+
 ```
 
 ### Distribution of cells within umap
@@ -161,6 +190,18 @@ DimPlot(seurat, group.by = "cell_types",
         label = T) + 
   ggtitle("") 
 
+```
+
+```{r, fig.width=12, fig.height=6}
+#| label: broad ct num umap
+sub <- subset(x = seurat, subset = cond %in% c("YUMM", "YUMMER"))
+p <- DimPlot(sub, group.by = "cell_types_nr", 
+        split.by = "cond", 
+        reduction = "umap", 
+        label = T) + 
+  ggtitle("") 
+
+#ggsave("../../../out/EDA/umap_yum_yummer_tumor_cD45.pdf", p)
 ```
 
 ## Cluster marker gene expression

@@ -1,0 +1,162 @@
+---
+title: "DE_tumor_vs_LN_CD45"
+---
+
+## DE between conditions
+
+So far LN_CD45 and tumour_CD45 objects have been processed separately.
+
+Here we will compare assigned cell types between tumor and Ln samples within each tumor type (YUMM, YUMMER)
+
+### Preamble
+
+```{r}
+#| label: load-libs
+#| echo: true
+#| output: false
+
+library(scran)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scuttle)
+library(pheatmap)
+library(patchwork)
+library(stringr)
+library(Seurat)
+library(ggbeeswarm)
+library(EnhancedVolcano)
+library(SingleCellExperiment)
+library(gridExtra)
+```
+
+```{r}
+#| label: plot fun
+#| code-fold: true
+
+# volcano plot function as defined in https://github.com/HelenaLC/TLS-Silina/blob/main/code/geo-02-differential.qmd
+
+.volcano <- \(df, title, fdr = 0.05, lfc = 1, select_lab = NULL) {
+  EnhancedVolcano(df, 
+    x = "logFC", y = "PValue",
+    FCcutoff = lfc, pCutoff = fdr,
+    selectLab = select_lab,
+    pointSize = 1.7, raster = TRUE,
+    title = title, subtitle = NULL,
+    lab = rownames(df), labSize = 4, 
+    drawConnectors = TRUE, widthConnectors = 0.5) +
+  guides(col = guide_legend(override.aes = list(alpha = 1, size = 5))) +
+  theme_bw(9) + theme(
+    aspect.ratio = 1,
+    legend.title = element_blank(),
+    panel.grid.minor = element_blank())
+}
+
+```
+
+### Datasets
+
+```{r}
+#| label: data
+
+sce_tum <- readRDS("../../../data/sce_tumor_CD45.rds")
+sce_LN <- readRDS("../../../data/sce_LN_CD45.rds")
+
+#common genes
+universe <- intersect(rownames(sce_tum), rownames(sce_LN))
+length(universe)
+
+# Subsetting the SingleCellExperiment object.
+sce_tum <- sce_tum[universe,]
+sce_LN <- sce_LN[universe,]
+
+rowData(sce_tum) <- rowData(sce_LN)
+sce_tum$tissue <- "tumor_CD45"
+sce_LN$tissue <- "LN_CD45"
+
+com_colData <- intersect(colnames(colData(sce_tum)), colnames(colData(sce_LN)))
+colData(sce_tum) <- colData(sce_tum)[,com_colData]
+colData(sce_LN) <- colData(sce_LN)[,com_colData]
+altExps(sce_LN, withDimnames=TRUE, withColData=FALSE) <- NULL
+altExps(sce_tum, withDimnames=TRUE, withColData=FALSE) <- NULL
+
+sce <- cbind(sce_tum, sce_LN)
+table(sce$cond, sce$tissue)
+sce <- sce[,!sce$cond %in% "skin"]
+
+# collapse corresponding cell types
+sce$com_celltypes <- sce$cell_types |> 
+  as.factor() |> 
+  forcats::fct_collapse("DCs" = c("DCs/TGD", "DCs"),
+                        "CD4 T cells" = c("CD4 T cells", "Naïve CD4 T cells"),
+                        "CD8 T cells" = c("CD8 T cells", 
+                                          "Naive/memory/stem like CD8 T cells"),
+                        "other T cells" = c("regulatory T cells", "other T cells"))
+
+```
+
+### Pseudobulk De analysis
+
+```{r}
+#| label: de
+
+# creating pseudobulks
+summed <- aggregateAcrossCells(sce,
+                               id=colData(sce)[,c("com_celltypes", "sample_pooled")])
+# filter min cells
+summed.filt <- summed[,summed$ncells >= 10]
+print(table(summed.filt$tissue, summed.filt$com_celltypes))
+
+# Model design
+## Do the LN and tumor sample correspond to the same mouse?
+design <- model.matrix(~ tissue, as.data.frame(colData(summed.filt)))
+
+# To specify the contrast/coef. 
+colnames(design)
+
+
+# Differential expression
+tum_LN <- pseudoBulkDGE(summed.filt, 
+    label=summed.filt$com_celltypes,
+    design=~tissue,
+    coef="tissuetumor_CD45",
+    condition=summed.filt$tissue 
+)
+
+
+# Number of DE genes per cluster in yummer_yumm
+is.de <- decideTestsPerLabel(tum_LN, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#write as output
+write_de_res <- function(de_obj, res_nam){
+  res_list <- lapply(names(de_obj), function(clust, nam = res_nam){
+    cur.res <- de_obj[[clust]]
+    res <- cur.res[order(cur.res$PValue),] |> 
+      as.data.frame() |> 
+      filter(!is.na(PValue))
+    ## --- adapt path DE/ to local output path -----##
+    write.csv(res, paste0("../../../out/DE/", nam, "_", clust, ".csv"))
+    res
+  })
+}
+
+de_tum_LN <- write_de_res(tum_LN, res_nam = "tum_vs_LN")
+```
+
+### Volcano plots
+
+```{r, fig.width=7, fig.height=16}
+#| label: volcano
+
+plot_list <- lapply(names(tum_LN), \(.) {
+  df = tum_LN[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, )
+  }
+)
+
+wrap_plots(plot_list, ncol = 2) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+
+```

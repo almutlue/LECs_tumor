@@ -90,6 +90,11 @@ seurat$cond <- seurat[[]] |>
 
 # check assignment
 table(seurat$Sample, seurat$cond)
+seurat$sample_pooled <- seurat$Sample |> 
+  forcats::fct_collapse("TumorYUMM1" = c("TumorYUMM1_1A", "TumorYUMM1_1B"),
+                        "TumorYUMM2" = c("TumorYUMM2_1A", "TumorYUMM2_1B"),
+                        "TumorYUMM5" = c("TumorYUMM5_2A", "TumorYUMM5_2B"),
+                        "TumorYUMM6" = c("TumorYUMM6_2A", "TumorYUMM6_2B"))
 table(seurat$cond)
 
 # switch to SingleCellExperiment object
@@ -113,7 +118,7 @@ cond_de <- function(cond1, cond2){
   summed.filt <- summed[,summed$ncells >= 5]
   print(table(summed.filt$cond, summed.filt$ident))
   # de
-  design <- model.matrix(~factor(summed.filt$cond), summed.filt$Samples)
+  design <- model.matrix(~ 0 + factor(summed.filt$cond))
   de.results <- pseudoBulkDGE(summed.filt, 
     label=summed.filt$ident,
     design=~factor(cond),

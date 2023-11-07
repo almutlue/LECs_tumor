@@ -13,6 +13,9 @@ website:
         menu:
           - code/SNF_draft/DE/vis_de_LEC_YUMM_YUMMER.qmd 
           - code/SNF_draft/DE/de_LECs.qmd 
+          - code/SNF_draft/DE/de_tumor_CD45.qmd
+          - code/SNF_draft/DE/de_LN_CD45_almut.qmd
+          - code/SNF_draft/DE/de_tumor_vs_LN_CD45.qmd 
       - text: "Exploratory data anaylsis"
         menu:
           - code/SNF_draft/EDA/vis_LECs_all.qmd 

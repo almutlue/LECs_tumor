@@ -136,6 +136,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_LECs.html" rel="" target="">
  <span class="dropdown-text">DE_LECs</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_tumor_CD45.html" rel="" target="">
+ <span class="dropdown-text">DE_LECs</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_LN_CD45_almut.html" rel="" target="">
+ <span class="dropdown-text">DE_LN_CD45</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_tumor_vs_LN_CD45.html" rel="" target="">
+ <span class="dropdown-text">DE_tumor_vs_LN_CD45</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -314,7 +326,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   TumorYUMMER8_2A         0    0    160
   TumorYUMMER8_2B         0    0    135</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(seurat<span class="sc">$</span>cond)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>seurat<span class="sc">$</span>sample_pooled <span class="ot">&lt;-</span> seurat<span class="sc">$</span>Sample <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  forcats<span class="sc">::</span><span class="fu">fct_collapse</span>(<span class="st">"TumorYUMM1"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"TumorYUMM1_1A"</span>, <span class="st">"TumorYUMM1_1B"</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"TumorYUMM2"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"TumorYUMM2_1A"</span>, <span class="st">"TumorYUMM2_1B"</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"TumorYUMM5"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"TumorYUMM5_2A"</span>, <span class="st">"TumorYUMM5_2B"</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"TumorYUMM6"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"TumorYUMM6_2A"</span>, <span class="st">"TumorYUMM6_2B"</span>))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(seurat<span class="sc">$</span>cond)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
   skin   YUMM YUMMER 
@@ -337,7 +354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  summed.filt <span class="ot">&lt;-</span> summed[,summed<span class="sc">$</span>ncells <span class="sc">&gt;=</span> <span class="dv">5</span>]</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">table</span>(summed.filt<span class="sc">$</span>cond, summed.filt<span class="sc">$</span>ident))</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># de</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span><span class="fu">factor</span>(summed.filt<span class="sc">$</span>cond), summed.filt<span class="sc">$</span>Samples)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> <span class="fu">factor</span>(summed.filt<span class="sc">$</span>cond))</span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  de.results <span class="ot">&lt;-</span> <span class="fu">pseudoBulkDGE</span>(summed.filt, </span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">label=</span>summed.filt<span class="sc">$</span>ident,</span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">design=</span><span class="sc">~</span><span class="fu">factor</span>(cond),</span>
