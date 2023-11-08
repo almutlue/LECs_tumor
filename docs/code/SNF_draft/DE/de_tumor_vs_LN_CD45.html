@@ -138,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_tumor_CD45.html" rel="" target="">
- <span class="dropdown-text">DE_LECs</span></a>
+ <span class="dropdown-text">DE tumor CD45</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../../code/SNF_draft/DE/de_LN_CD45_almut.html" rel="" target="">
@@ -319,114 +319,138 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="pseudobulk-de-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="pseudobulk-de-analysis">Pseudobulk De analysis</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># creating pseudobulks</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>summed <span class="ot">&lt;-</span> <span class="fu">aggregateAcrossCells</span>(sce,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">id=</span><span class="fu">colData</span>(sce)[,<span class="fu">c</span>(<span class="st">"com_celltypes"</span>, <span class="st">"sample_pooled"</span>)])</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># filter min cells</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>summed.filt <span class="ot">&lt;-</span> summed[,summed<span class="sc">$</span>ncells <span class="sc">&gt;=</span> <span class="dv">10</span>]</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(summed.filt<span class="sc">$</span>tissue, summed.filt<span class="sc">$</span>com_celltypes))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pb_de <span class="ot">&lt;-</span> <span class="cf">function</span>(cond){</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  sub <span class="ot">&lt;-</span> sce[,sce<span class="sc">$</span>cond <span class="sc">%in%</span> cond]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># creating pseudobulks</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  summed <span class="ot">&lt;-</span> <span class="fu">aggregateAcrossCells</span>(sub,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                               <span class="at">id=</span><span class="fu">colData</span>(sub)[,<span class="fu">c</span>(<span class="st">"com_celltypes"</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                                  <span class="st">"sample_pooled"</span>)])</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># filter min cells</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  summed.filt <span class="ot">&lt;-</span> summed[,summed<span class="sc">$</span>ncells <span class="sc">&gt;=</span> <span class="dv">10</span>]</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">table</span>(summed.filt<span class="sc">$</span>tissue, summed.filt<span class="sc">$</span>com_celltypes))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Model design</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Do the LN and tumor sample correspond to the same mouse?</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> tissue, <span class="fu">as.data.frame</span>(<span class="fu">colData</span>(summed.filt)))</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># To specify the contrast/coef. </span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(design)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Differential expression</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  tum_LN <span class="ot">&lt;-</span> <span class="fu">pseudoBulkDGE</span>(summed.filt, </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">label=</span>summed.filt<span class="sc">$</span>com_celltypes,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">design=</span><span class="sc">~</span>tissue,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">coef=</span><span class="st">"tissuetumor_CD45"</span>,</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">condition=</span>summed.filt<span class="sc">$</span>tissue)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>yumm <span class="ot">&lt;-</span> <span class="fu">pb_de</span>(<span class="st">"YUMM"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            
              monocytes/macrophages other T cells DCs CD8 T cells
-  LN_CD45                        0             7   7           7
-  tumor_CD45                     8             8   8           8
+  LN_CD45                        0             4   4           4
+  tumor_CD45                     4             4   4           4
             
              endothelial cells/fibroblasts CD4 T cells mast cells other B cells
-  LN_CD45                                0           7          0     4       7
-  tumor_CD45                             8           8          8     4       7
+  LN_CD45                                0           4          0     2       4
+  tumor_CD45                             4           4          4     4       3
             
              NK cells LECs
-  LN_CD45           7    7
+  LN_CD45           4    4
   tumor_CD45        0    0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model design</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Do the LN and tumor sample correspond to the same mouse?</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> tissue, <span class="fu">as.data.frame</span>(<span class="fu">colData</span>(summed.filt)))</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># To specify the contrast/coef. </span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(design)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>yummer <span class="ot">&lt;-</span> <span class="fu">pb_de</span>(<span class="st">"YUMMER"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "(Intercept)"      "tissuetumor_CD45"</code></pre>
+<pre><code>            
+             monocytes/macrophages other T cells DCs CD8 T cells
+  LN_CD45                        0             3   3           3
+  tumor_CD45                     4             4   4           4
+            
+             endothelial cells/fibroblasts CD4 T cells mast cells other B cells
+  LN_CD45                                0           3          0     2       3
+  tumor_CD45                             4           4          4     0       4
+            
+             NK cells LECs
+  LN_CD45           3    3
+  tumor_CD45        0    0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Differential expression</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>tum_LN <span class="ot">&lt;-</span> <span class="fu">pseudoBulkDGE</span>(summed.filt, </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">label=</span>summed.filt<span class="sc">$</span>com_celltypes,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">design=</span><span class="sc">~</span>tissue,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">coef=</span><span class="st">"tissuetumor_CD45"</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition=</span>summed.filt<span class="sc">$</span>tissue </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of DE genes per cluster in yummer_yumm</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>is.de <span class="ot">&lt;-</span> <span class="fu">decideTestsPerLabel</span>(tum_LN, <span class="at">threshold=</span><span class="fl">0.05</span>)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summarizeTestsPerLabel</span>(is.de)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of DE genes per cluster in yummer_yumm</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>is.de <span class="ot">&lt;-</span> <span class="fu">decideTestsPerLabel</span>(yumm, <span class="at">threshold=</span><span class="fl">0.05</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summarizeTestsPerLabel</span>(is.de)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                -1    0    1    NA
-B cells        599 1203  583 11872
-CD4 T cells    949 2660  989  9659
-CD8 T cells   1175 3990 1240  7852
-DCs           2274 3414 2207  6362
-other          444  293  642 12878
-other T cells 1868 3324 1977  7088</code></pre>
+B cells        330 2157  516 11254
+CD4 T cells    499 2076  555 11127
+CD8 T cells    506 3703  589  9459
+DCs           1613 4074 1662  6908
+other          448 1484  816 11509
+other T cells  968 2137 1063 10089</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write as output</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>write_de_res <span class="ot">&lt;-</span> <span class="cf">function</span>(de_obj, res_nam){</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  res_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(de_obj), <span class="cf">function</span>(clust, <span class="at">nam =</span> res_nam){</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    cur.res <span class="ot">&lt;-</span> de_obj[[clust]]</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> cur.res[<span class="fu">order</span>(cur.res<span class="sc">$</span>PValue),] <span class="sc">|&gt;</span> </span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(PValue))</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="do">## --- adapt path DE/ to local output path -----##</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(res, <span class="fu">paste0</span>(<span class="st">"../../../out/DE/"</span>, nam, <span class="st">"_"</span>, clust, <span class="st">".csv"</span>))</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    res</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>de_tum_LN <span class="ot">&lt;-</span> <span class="fu">write_de_res</span>(tum_LN, <span class="at">res_nam =</span> <span class="st">"tum_vs_LN"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>is.de <span class="ot">&lt;-</span> <span class="fu">decideTestsPerLabel</span>(yummer, <span class="at">threshold=</span><span class="fl">0.05</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summarizeTestsPerLabel</span>(is.de)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                -1    0    1    NA
+B cells        629 1309  622 11697
+CD4 T cells    764 3267  852  9374
+CD8 T cells   1072 5858 1220  6107
+DCs           2015 4869 2041  5332
+other T cells 1633 4290 1672  6662</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write as output</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>write_de_res <span class="ot">&lt;-</span> <span class="cf">function</span>(de_obj, res_nam){</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  res_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(de_obj), <span class="cf">function</span>(clust, <span class="at">nam =</span> res_nam){</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    cur.res <span class="ot">&lt;-</span> de_obj[[clust]]</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> cur.res[<span class="fu">order</span>(cur.res<span class="sc">$</span>PValue),] <span class="sc">|&gt;</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(PValue))</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="do">## --- adapt path DE/ to local output path -----##</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write.csv</span>(res, <span class="fu">paste0</span>(<span class="st">"../../../out/DE/"</span>, nam, <span class="st">"_"</span>, clust, <span class="st">".csv"</span>))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    res</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>yumm_tum_LN <span class="ot">&lt;-</span> <span class="fu">write_de_res</span>(yumm, <span class="at">res_nam =</span> <span class="st">"yumm_tum_vs_LN"</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>yummer_tum_LN <span class="ot">&lt;-</span> <span class="fu">write_de_res</span>(yummer, <span class="at">res_nam =</span> <span class="st">"yummer_tum_vs_LN"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="volcano-plots" class="level3">
 <h3 class="anchored" data-anchor-id="volcano-plots">Volcano plots</h3>
+<section id="yumm" class="level4">
+<h4 class="anchored" data-anchor-id="yumm">YUMM</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>plot_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(tum_LN), \(.) {</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">=</span> tum_LN[[.]]</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">.volcano</span>(<span class="at">df =</span> df, <span class="at">title =</span> ., <span class="at">fdr =</span> <span class="fl">0.05</span>, <span class="at">lfc =</span> <span class="dv">1</span>, )</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">wrap_plots</span>(plot_list, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: ggrepel: 605 unlabeled data points (too many overlaps). Consider
-increasing max.overlaps</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: ggrepel: 650 unlabeled data points (too many overlaps). Consider
-increasing max.overlaps</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: ggrepel: 681 unlabeled data points (too many overlaps). Consider
-increasing max.overlaps</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: ggrepel: 1990 unlabeled data points (too many overlaps). Consider
-increasing max.overlaps</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: ggrepel: 893 unlabeled data points (too many overlaps). Consider
-increasing max.overlaps</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: ggrepel: 1483 unlabeled data points (too many overlaps). Consider
-increasing max.overlaps</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>plot_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(yumm), \(.) {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">=</span> yumm[[.]]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">.volcano</span>(<span class="at">df =</span> df, <span class="at">title =</span> ., <span class="at">fdr =</span> <span class="fl">0.05</span>, <span class="at">lfc =</span> <span class="dv">1</span>, )</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">wrap_plots</span>(plot_list, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="de_tumor_vs_LN_CD45_files/figure-html/volcano-1.png" class="img-fluid" width="672"></p>
+<p><img src="de_tumor_vs_LN_CD45_files/figure-html/volcano yumm-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="yummer" class="level4">
+<h4 class="anchored" data-anchor-id="yummer">YUMMER</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plot_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(yummer), \(.) {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">=</span> yummer[[.]]</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">.volcano</span>(<span class="at">df =</span> df, <span class="at">title =</span> ., <span class="at">fdr =</span> <span class="fl">0.05</span>, <span class="at">lfc =</span> <span class="dv">1</span>, )</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">wrap_plots</span>(plot_list, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="de_tumor_vs_LN_CD45_files/figure-html/volcano yummer-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
 
+</section>
 </section>
 </section>
 

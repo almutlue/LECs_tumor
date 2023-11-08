@@ -100,32 +100,40 @@ sce$com_celltypes <- sce$cell_types |>
 ```{r}
 #| label: de
 
-# creating pseudobulks
-summed <- aggregateAcrossCells(sce,
-                               id=colData(sce)[,c("com_celltypes", "sample_pooled")])
-# filter min cells
-summed.filt <- summed[,summed$ncells >= 10]
-print(table(summed.filt$tissue, summed.filt$com_celltypes))
+pb_de <- function(cond){
+  sub <- sce[,sce$cond %in% cond]
+  # creating pseudobulks
+  summed <- aggregateAcrossCells(sub,
+                               id=colData(sub)[,c("com_celltypes", 
+                                                  "sample_pooled")])
+  # filter min cells
+  summed.filt <- summed[,summed$ncells >= 10]
+  print(table(summed.filt$tissue, summed.filt$com_celltypes))
+  
+  # Model design
+  ## Do the LN and tumor sample correspond to the same mouse?
+  design <- model.matrix(~ tissue, as.data.frame(colData(summed.filt)))
+  
+  # To specify the contrast/coef. 
+  colnames(design)
+  
+  # Differential expression
+  tum_LN <- pseudoBulkDGE(summed.filt, 
+      label=summed.filt$com_celltypes,
+      design=~tissue,
+      coef="tissuetumor_CD45",
+      condition=summed.filt$tissue)
+}
 
-# Model design
-## Do the LN and tumor sample correspond to the same mouse?
-design <- model.matrix(~ tissue, as.data.frame(colData(summed.filt)))
-
-# To specify the contrast/coef. 
-colnames(design)
-
-
-# Differential expression
-tum_LN <- pseudoBulkDGE(summed.filt, 
-    label=summed.filt$com_celltypes,
-    design=~tissue,
-    coef="tissuetumor_CD45",
-    condition=summed.filt$tissue 
-)
+yumm <- pb_de("YUMM")
+yummer <- pb_de("YUMMER")
 
 
 # Number of DE genes per cluster in yummer_yumm
-is.de <- decideTestsPerLabel(tum_LN, threshold=0.05)
+is.de <- decideTestsPerLabel(yumm, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+is.de <- decideTestsPerLabel(yummer, threshold=0.05)
 summarizeTestsPerLabel(is.de)
 
 #write as output
@@ -141,16 +149,20 @@ write_de_res <- function(de_obj, res_nam){
   })
 }
 
-de_tum_LN <- write_de_res(tum_LN, res_nam = "tum_vs_LN")
+yumm_tum_LN <- write_de_res(yumm, res_nam = "yumm_tum_vs_LN")
+yummer_tum_LN <- write_de_res(yummer, res_nam = "yummer_tum_vs_LN")
 ```
 
 ### Volcano plots
 
-```{r, fig.width=7, fig.height=16}
-#| label: volcano
+#### YUMM
 
-plot_list <- lapply(names(tum_LN), \(.) {
-  df = tum_LN[[.]]
+```{r, fig.width=7, fig.height=16}
+#| label: volcano yumm
+#| warning: FALSE
+
+plot_list <- lapply(names(yumm), \(.) {
+  df = yumm[[.]]
   .volcano(df = df, title = ., fdr = 0.05, lfc = 1, )
   }
 )
@@ -159,4 +171,21 @@ wrap_plots(plot_list, ncol = 2) +
   plot_layout(guides = "collect") &
   theme(legend.position = "top")
 
+```
+
+#### YUMMER
+
+```{r, fig.width=7, fig.height=16}
+#| label: volcano yummer
+#| warning: FALSE
+
+plot_list <- lapply(names(yummer), \(.) {
+  df = yummer[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1, )
+  }
+)
+
+wrap_plots(plot_list, ncol = 2) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
 ```
