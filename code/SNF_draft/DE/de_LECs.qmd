@@ -1,5 +1,8 @@
 ---
 title: "DE_LECs"
+format:
+  html:
+    embed-resources: true
 editor: visual
 ---
 
@@ -99,6 +102,7 @@ table(seurat$cond)
 
 # switch to SingleCellExperiment object
 sce <- as.SingleCellExperiment(seurat)
+sce$cond <- as.factor(sce$cond)
 
 
 ```
@@ -111,6 +115,7 @@ sce <- as.SingleCellExperiment(seurat)
 cond_de <- function(cond1, cond2){
   # subset sce
   sce_sub <- sce[,sce$cond %in% c(cond1, cond2)]
+  sce_sub$cond <- droplevels(sce_sub$cond)
   # creating pseudobulks
   summed <- aggregateAcrossCells(sce_sub, 
                                  id=colData(sce_sub)[,c("ident", "Sample")])
@@ -118,7 +123,7 @@ cond_de <- function(cond1, cond2){
   summed.filt <- summed[,summed$ncells >= 5]
   print(table(summed.filt$cond, summed.filt$ident))
   # de
-  design <- model.matrix(~ 0 + factor(summed.filt$cond))
+  design <- model.matrix(~ summed.filt$cond)
   de.results <- pseudoBulkDGE(summed.filt, 
     label=summed.filt$ident,
     design=~factor(cond),
@@ -127,21 +132,29 @@ cond_de <- function(cond1, cond2){
 )
 }
 
-skin_yumm <- cond_de("skin", "YUMM")
-yummer_yumm <- cond_de("YUMMER", "YUMM")
-skin_yummer <- cond_de("skin","YUMMER")
 
+yumm_skin <- cond_de("skin", "YUMM")
+yummer_yumm <- cond_de("YUMMER", "YUMM")
+yummer_skin <- cond_de("skin","YUMMER")
+
+# refactor cond
+sce$cond <- factor(sce$cond, levels = c("YUMMER", "YUMM", "skin"))
+skin_yumm <- cond_de("skin", "YUMM")
 
 #DE skin_yumm
 is.de <- decideTestsPerLabel(skin_yumm, threshold=0.05)
+summarizeTestsPerLabel(is.de)
+
+#DE yumm_skin
+is.de <- decideTestsPerLabel(yumm_skin, threshold=0.05)
 summarizeTestsPerLabel(is.de)
 
 #DE yummer_yumm
 is.de <- decideTestsPerLabel(yummer_yumm, threshold=0.05)
 summarizeTestsPerLabel(is.de)
 
-#DE skin_yummer
-is.de <- decideTestsPerLabel(skin_yummer, threshold=0.05)
+#DE yummer_skin
+is.de <- decideTestsPerLabel(yummer_skin, threshold=0.05)
 summarizeTestsPerLabel(is.de)
 
 
@@ -158,18 +171,35 @@ write_de_res <- function(de_obj, res_nam){
   })
 }
 
-de_skin_yumm <- write_de_res(skin_yumm, res_nam = "skin_yumm")
-de_skin_yumm <- write_de_res(yummer_yumm, res_nam = "yummer_yumm")
-de_skin_yumm <- write_de_res(skin_yummer, res_nam = "skin_yummer")
+de_yummer_yumm <- write_de_res(yummer_yumm, res_nam = "yummer_yumm")
+de_yumm_skin <- write_de_res(yumm_skin, res_nam = "yumm_skin")
+de_yummer_skin <- write_de_res(yummer_skin, res_nam = "yummer_skin")
 
 ```
 
 ## Plot results
 
-#### skin vs yumm
+#### yumm vs skin
 
 ```{r fig.width=7, fig.height=16}
-#| label: volcano
+#| label: volcano yumm skin
+#| warning: FALSE
+
+plot_list <- lapply(names(yumm_skin), \(.) {
+  df = yumm_skin[[.]]
+  .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
+  }
+)
+
+wrap_plots(plot_list, nrow = 4) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+### skin vs yumm
+
+```{r fig.width=7, fig.height=16}
+#| label: volcano skin yumm
 #| warning: FALSE
 
 plot_list <- lapply(names(skin_yumm), \(.) {
@@ -187,7 +217,7 @@ wrap_plots(plot_list, nrow = 4) +
 #### yummer vs yumm
 
 ```{r fig.width=7, fig.height=16}
-#| label: volcano yumm yummer
+#| label: volcano yummer yumm
 #| warning: FALSE
 
 plot_list <- lapply(names(yummer_yumm), \(.) {
@@ -201,14 +231,14 @@ wrap_plots(plot_list, nrow = 4) +
   theme(legend.position = "top")
 ```
 
-#### skin vs yummer
+#### yummer vs skin
 
 ```{r, fig.height=15, fig.width=8}
-#| label: volcano skin yummer
+#| label: volcano yummer skin
 #| warning: FALSE
 
-plot_list <- lapply(names(skin_yummer), \(.) {
-  df = skin_yummer[[.]]
+plot_list <- lapply(names(yummer_skin), \(.) {
+  df = yummer_skin[[.]]
   .volcano(df = df, title = ., fdr = 0.05, lfc = 1, select_lab = c("Lyve1"))
   .volcano(df = df, title = ., fdr = 0.05, lfc = 1)
   }
@@ -221,16 +251,16 @@ wrap_plots(plot_list, nrow = 4) +
 
 ### Heatmap plots
 
-#### skin vs yumm
+#### yumm vs skin
 
 ```{r, fig.width= 6, fig.height=5}
 
-for (. in names(skin_yumm)) {
+for (. in names(yumm_skin)) {
     cat("####", ., "\n")
     sub <- subset(x = seurat, idents = .)
     sub <- subset(x = sub, subset = cond %in% c("YUMM", "skin"))
     mtx <- GetAssayData(object = sub, slot = 'data')
-    top <- as.data.frame(skin_yumm[[.]]) %>%
+    top <- as.data.frame(yumm_skin[[.]]) %>%
     filter(PValue < 0.05) |> 
     slice_max(abs(logFC), n = 40)
     mtx_sub <- log1p(mtx[rownames(top),])
@@ -275,16 +305,16 @@ for (. in names(yummer_yumm)) {
 
 ```
 
-#### skin vs yummer
+#### yummer vs skin
 
 ```{r, fig.width= 6, fig.height=5}
 
-for (. in names(skin_yummer)) {
+for (. in names(yummer_skin)) {
     cat("####", ., "\n")
     sub <- subset(x = seurat, idents = .)
     sub <- subset(x = sub, subset = cond %in% c("YUMMER", "skin"))
     mtx <- GetAssayData(object = sub, slot = 'data')
-    top <- as.data.frame(skin_yummer[[.]]) %>%
+    top <- as.data.frame(yummer_skin[[.]]) %>%
     filter(PValue < 0.05) |> 
     slice_max(abs(logFC), n = 40)
     mtx_sub <- log1p(mtx[rownames(top),])

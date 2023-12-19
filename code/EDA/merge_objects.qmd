@@ -1,0 +1,200 @@
+---
+title: "merge_objects"
+editor: visual
+---
+
+## Merge data
+
+Merge objects from FGCZ preprocessed BD Rhapsody data.
+
+### Libs
+
+```{r}
+#| label: libs
+#| echo: true
+#| output: false
+library(Seurat)
+library(dplyr)
+library(batchelor)
+library(scater)
+library(scran)
+library(SingleCellExperiment)
+```
+
+### Data "new"
+
+```{r}
+#| label: data
+#| code-fold: true
+#| eval: false
+
+filenames <- list.files("../../data/seq_Nov/o33260_o33118_ScSeurat_2023-12-01--19-43-37", pattern="*.rds", full.names=TRUE, recursive = T)
+
+filenames_old <- list.files("../../data/seq_Nov/ScSeurat_2023-12-15--17-47-24", pattern="*.rds", full.names=TRUE, recursive = T)
+
+read_seurat <- function(fi_nam){
+  seurat <- readRDS(fi_nam)
+  seurat$tissue <- gsub("NOV_([^_]*.)(_[^_].*)", "\\1", seurat$Sample)
+  seurat$tumor <- gsub("NOV_.*(YUMM|YUMMER|Skin)_([0-9].*)_.*", "\\1", 
+                       seurat$Sample)
+  seurat$mouse <- gsub("NOV_.*(YUMM|YUMMER|Skin)_([0-9].*)_.*", "\\2", 
+                       seurat$Sample)
+  seurat$experiment <- "new"
+  sce <- as.SingleCellExperiment(seurat)
+}
+
+read_seurat_old <- function(fi_nam){
+  seurat <- readRDS(fi_nam)
+  seurat$tissue <- gsub("^(LN|Tumor)(YUMM|YUMMER|Skin)", "\\1", seurat$Condition)
+  seurat$tumor <- gsub("^(LN|Tumor)(YUMM|YUMMER|Skin)", "\\2", seurat$Condition)
+  seurat$mouse <- gsub("(Ln|Tumor)(YUMM|YUMMER|Skin)([0-9].*)", "\\3", seurat$Sample)
+  seurat$experiment <- "old"
+  sce <- as.SingleCellExperiment(seurat)
+}
+
+#read objects
+ln_fi <- grep("_LN_", filenames, value = T)
+tumor_fi <- grep("Tumor|Skin", filenames, value= T)
+
+ln_list <- lapply(ln_fi,read_seurat)
+tum_list <- lapply(tumor_fi,read_seurat)
+
+ln_fi_old <- grep("Ln", filenames_old, value = T)
+tumor_fi_old <- grep("Tumor|Skin", filenames_old, value= T)
+
+ln_list_old <- lapply(ln_fi_old,read_seurat_old)
+tum_list_old <- lapply(tumor_fi_old,read_seurat_old)
+
+# save objects
+saveRDS(ln_list, "../../data/seq_Nov/objects/sce_ln_list.rds")
+saveRDS(tum_list, "../../data/seq_Nov/objects/sce_tum_list.rds")
+saveRDS(ln_list_old, "../../data/seq_Nov/objects/sce_ln_list_old.rds")
+saveRDS(tum_list_old, "../../data/seq_Nov/objects/sce_tum_list_old.rds")
+
+```
+
+
+```{r}
+#| label: read in objects
+ln_list <- readRDS("../../data/seq_Nov/objects/sce_ln_list.rds")
+tum_list <- readRDS("../../data/seq_Nov/objects/sce_tum_list.rds")
+ln_list_old <- readRDS("../../data/seq_Nov/objects/sce_ln_list_old.rds")
+tum_list_old <- readRDS("../../data/seq_Nov/objects/sce_tum_list_old.rds")
+
+```
+
+
+
+### Combine - no batch correction
+
+```{r}
+#| label: com
+merge_sce <- function(sce_list, exp){
+  # get common genes
+  gene_list <- lapply(sce_list, function(sce){
+  rownames(sce)
+  })
+  universe <- Reduce(intersect, gene_list)
+  sce_list <- lapply(sce_list, function(sce){
+  sce <- sce[universe,]
+  })
+  gc()
+  # rescale sample
+  sce_list <- multiBatchNorm(sce_list)
+  # get highly variable genes
+  dec_list <- lapply(sce_list, function(sce){
+  dec <- modelGeneVar(sce)
+  })
+  combined.dec <- combineVar(dec_list)
+  chosen.hvgs <- combined.dec$bio > 0
+  sce <- do.call(cbind, sce_list)
+  sce <- runPCA(sce, subset_row=chosen.hvgs,
+    BSPARAM=BiocSingular::RandomParam())
+  sce <- runTSNE(sce, dimred="PCA")
+  sce <- runUMAP(sce, dimred="PCA")
+  sce$experiment <- rep(exp, nrow(sce))
+  nn.clusters <- clusterCells(sce, use.dimred="PCA", BLUSPARAM=NNGraphParam(k=50))
+  colLabels(sce) <- nn.clusters
+  sce
+}
+
+
+# By experiment
+sce_tum <- merge_sce(tum_list, exp = "new")
+sce_ln <- merge_sce(ln_list, exp = "new")
+sce_tum_old <- merge_sce(tum_list_old, exp = "old")
+sce_ln_old <- merge_sce(ln_list_old, exp = "old")
+
+# By condition
+select_cond <- function(sce, cond){
+  if(cond %in% sce$tumor){
+    sce
+  }
+}
+
+tum_yumm_list <- lapply(c(tum_list,tum_list_old), select_cond, cond = "YUMM")
+tum_yumm_list <- tum_yumm_list[!sapply(tum_yumm_list,is.null)]
+
+tum_yummer_list <- lapply(c(tum_list,tum_list_old), select_cond, cond = "YUMMER")
+tum_yummer_list <- tum_yummer_list[!sapply(tum_yummer_list,is.null)]
+
+ln_yumm_list <- lapply(c(ln_list,ln_list_old), select_cond, cond = "YUMM")
+ln_yumm_list <- ln_yumm_list[!sapply(ln_yumm_list,is.null)]
+
+ln_yummer_list <- lapply(c(ln_list,ln_list_old), select_cond, cond = "YUMMER")
+ln_yummer_list <- ln_yummer_list[!sapply(ln_yummer_list,is.null)]
+
+
+sce_tum_yumm <- merge_sce(tum_yumm_list, exp = "mixed")
+sce_ln_yumm <- merge_sce(ln_yumm_list, exp = "mixed")
+sce_tum_yummer <- merge_sce(tum_yummer_list, exp = "mixed")
+sce_ln_yummer <- merge_sce(ln_yummer_list, exp = "mixed")
+
+# save obejcts
+saveRDS(sce_tum, "../../data/seq_Nov/objects/sce_tumor_combined.rds")
+saveRDS(sce_ln, "../../data/seq_Nov/objects/sce_ln_combined.rds")
+saveRDS(sce_tum, "../../data/seq_Nov/objects/sce_tumor_old_combined.rds")
+saveRDS(sce_ln, "../../data/seq_Nov/objects/sce_ln_old_combined.rds")
+
+saveRDS(sce_tum_yumm, "../../data/seq_Nov/objects/sce_tumor_yumm_combined.rds")
+saveRDS(sce_ln_yumm, "../../data/seq_Nov/objects/sce_ln_yumm_combined.rds")
+saveRDS(sce_tum_yummer, "../../data/seq_Nov/objects/sce_tumor_yummer_combined.rds")
+saveRDS(sce_ln_yummer, "../../data/seq_Nov/objects/sce_ln_yummer_combined.rds")
+
+
+```
+
+### Sample effects in LN
+
+```{r}
+#| label: sample ln
+
+sce_ln <- readRDS("../../data/seq_Nov/objects/sce_ln_combined.rds")
+
+p1 <- plotReducedDim(sce_ln, dimred="TSNE", colour_by="mouse")
+p2 <- plotReducedDim(sce_ln, dimred="TSNE", colour_by="label")
+
+wrap_plots(list(p1,p2), nrow = 1) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+
+### Sample effects in TUM
+
+```{r}
+#| label: sample tum
+
+
+p1 <- plotReducedDim(sce_tum, dimred="TSNE", colour_by="mouse")
+p2 <- plotReducedDim(sce_tum, dimred="TSNE", colour_by="label")
+
+wrap_plots(list(p1,p2), nrow = 1) + 
+  plot_layout(guides = "collect") &
+  theme(legend.position = "top")
+```
+
+### Featureplots
+
+## Combine experiments
+
