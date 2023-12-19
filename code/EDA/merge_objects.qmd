@@ -89,7 +89,7 @@ tum_list_old <- readRDS("../../data/seq_Nov/objects/sce_tum_list_old.rds")
 
 ```{r}
 #| label: com
-merge_sce <- function(sce_list, exp){
+merge_sce <- function(sce_list){
   # get common genes
   gene_list <- lapply(sce_list, function(sce){
   rownames(sce)
@@ -112,18 +112,15 @@ merge_sce <- function(sce_list, exp){
     BSPARAM=BiocSingular::RandomParam())
   sce <- runTSNE(sce, dimred="PCA")
   sce <- runUMAP(sce, dimred="PCA")
-  sce$experiment <- rep(exp, nrow(sce))
-  nn.clusters <- clusterCells(sce, use.dimred="PCA", BLUSPARAM=NNGraphParam(k=50))
-  colLabels(sce) <- nn.clusters
   sce
 }
 
 
 # By experiment
-sce_tum <- merge_sce(tum_list, exp = "new")
-sce_ln <- merge_sce(ln_list, exp = "new")
-sce_tum_old <- merge_sce(tum_list_old, exp = "old")
-sce_ln_old <- merge_sce(ln_list_old, exp = "old")
+sce_tum <- merge_sce(tum_list)
+sce_ln <- merge_sce(ln_list)
+sce_tum_old <- merge_sce(tum_list_old)
+sce_ln_old <- merge_sce(ln_list_old)
 
 # By condition
 select_cond <- function(sce, cond){
@@ -145,10 +142,10 @@ ln_yummer_list <- lapply(c(ln_list,ln_list_old), select_cond, cond = "YUMMER")
 ln_yummer_list <- ln_yummer_list[!sapply(ln_yummer_list,is.null)]
 
 
-sce_tum_yumm <- merge_sce(tum_yumm_list, exp = "mixed")
-sce_ln_yumm <- merge_sce(ln_yumm_list, exp = "mixed")
-sce_tum_yummer <- merge_sce(tum_yummer_list, exp = "mixed")
-sce_ln_yummer <- merge_sce(ln_yummer_list, exp = "mixed")
+sce_tum_yumm <- merge_sce(tum_yumm_list)
+sce_ln_yumm <- merge_sce(ln_yumm_list)
+sce_tum_yummer <- merge_sce(tum_yummer_list)
+sce_ln_yummer <- merge_sce(ln_yummer_list)
 
 # save obejcts
 saveRDS(sce_tum, "../../data/seq_Nov/objects/sce_tumor_combined.rds")
