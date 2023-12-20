@@ -21,6 +21,12 @@ website:
           - code/SNF_draft/EDA/vis_LECs_all.qmd 
           - code/SNF_draft/EDA/vis_tumor_CD45_all.qmd 
           - code/SNF_draft/EDA/vis_LN_CD45.qmd 
+          - code/EDA/merge_objects.qmd 
+          - code/EDA/compare_objects_ln_yumm.qmd 
+          - code/EDA/compare_objects_ln_yummer.qmd
+          - code/EDA/compare_objects_tumor_yummer.qmd
+          - code/EDA/compare_objects_tumor_yumm.qmd
+          
     tools:
       - icon: github
         menu:

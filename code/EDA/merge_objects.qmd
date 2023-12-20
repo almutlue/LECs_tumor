@@ -5,7 +5,26 @@ editor: visual
 
 ## Merge data
 
-Merge objects from FGCZ preprocessed BD Rhapsody data.
+Merge R objects of the FGCZ preprocessed BD Rhapsody data.
+Sample were collected in different experiments and sequencing runs. 
+Here we combine all sample by tumor type and/or condition.
+
+"Old" sample are downloaded from the `ScSeurat_2023-12-15--17-47-24` folder and consist 
+of the pooled sample of the first 4 experiments (32384/33286, 32674/33286, 32554/33286).
+"New" sample were downloaded from the `o33260_o33118_ScSeurat_2023-12-01--19-43-37` folder 
+and completely sequenced in a second round and refer to experiment 5 and 6
+(33260,33118).
+
+The following objects are generated:
+`sce_tum`: All cells from tumor sample from experiments 33260 and 33118
+`sce_ln`: All cells from ln sample from experiments 33260 and 33118
+`sce_tum_old`: All cells from tumor sample from the pooled experiments 32384/33286, 32674/33286
+`sce_ln_old`: All cells from ln sample from the pooled experiments 32384/33286, 32674/33286
+`sce_tum_yumm`: All cells from tumor samples of YUMM type in all experiments
+`sce_tum_yummer`: All cells from tumor samples of YUMMER type in all experiments
+`sce_ln_yumm`: All cells from LN samples of YUMM type in all experiments
+`sce_ln_yummer`: All cells from LN samples of YUMMER type in all experiments
+
 
 ### Libs
 
@@ -76,6 +95,7 @@ saveRDS(tum_list_old, "../../data/seq_Nov/objects/sce_tum_list_old.rds")
 
 ```{r}
 #| label: read in objects
+#| eval: false
 ln_list <- readRDS("../../data/seq_Nov/objects/sce_ln_list.rds")
 tum_list <- readRDS("../../data/seq_Nov/objects/sce_tum_list.rds")
 ln_list_old <- readRDS("../../data/seq_Nov/objects/sce_ln_list_old.rds")
@@ -85,10 +105,11 @@ tum_list_old <- readRDS("../../data/seq_Nov/objects/sce_tum_list_old.rds")
 
 
 
-### Combine - no batch correction
+### Combine experiments (no batch correction)
 
 ```{r}
 #| label: com
+#| eval: false
 merge_sce <- function(sce_list){
   # get common genes
   gene_list <- lapply(sce_list, function(sce){
@@ -150,8 +171,8 @@ sce_ln_yummer <- merge_sce(ln_yummer_list)
 # save obejcts
 saveRDS(sce_tum, "../../data/seq_Nov/objects/sce_tumor_combined.rds")
 saveRDS(sce_ln, "../../data/seq_Nov/objects/sce_ln_combined.rds")
-saveRDS(sce_tum, "../../data/seq_Nov/objects/sce_tumor_old_combined.rds")
-saveRDS(sce_ln, "../../data/seq_Nov/objects/sce_ln_old_combined.rds")
+saveRDS(sce_tum_old, "../../data/seq_Nov/objects/sce_tumor_old_combined.rds")
+saveRDS(sce_ln_old, "../../data/seq_Nov/objects/sce_ln_old_combined.rds")
 
 saveRDS(sce_tum_yumm, "../../data/seq_Nov/objects/sce_tumor_yumm_combined.rds")
 saveRDS(sce_ln_yumm, "../../data/seq_Nov/objects/sce_ln_yumm_combined.rds")
@@ -160,38 +181,3 @@ saveRDS(sce_ln_yummer, "../../data/seq_Nov/objects/sce_ln_yummer_combined.rds")
 
 
 ```
-
-### Sample effects in LN
-
-```{r}
-#| label: sample ln
-
-sce_ln <- readRDS("../../data/seq_Nov/objects/sce_ln_combined.rds")
-
-p1 <- plotReducedDim(sce_ln, dimred="TSNE", colour_by="mouse")
-p2 <- plotReducedDim(sce_ln, dimred="TSNE", colour_by="label")
-
-wrap_plots(list(p1,p2), nrow = 1) + 
-  plot_layout(guides = "collect") &
-  theme(legend.position = "top")
-```
-
-
-### Sample effects in TUM
-
-```{r}
-#| label: sample tum
-
-
-p1 <- plotReducedDim(sce_tum, dimred="TSNE", colour_by="mouse")
-p2 <- plotReducedDim(sce_tum, dimred="TSNE", colour_by="label")
-
-wrap_plots(list(p1,p2), nrow = 1) + 
-  plot_layout(guides = "collect") &
-  theme(legend.position = "top")
-```
-
-### Featureplots
-
-## Combine experiments
-
