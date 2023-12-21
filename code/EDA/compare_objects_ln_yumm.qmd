@@ -82,23 +82,6 @@ wrap_plots(list(p1,p2), nrow = 1) +
 
 ```
 
-##### Prox1
-
-```{r}
-#| label: dimplots prox1
-p1 <- plotReducedDim(sce[,sce$experiment %in% "old"], 
-                     dimred="TSNE", 
-                     colour_by="Prox1") + ggtitle("old")
-
-p2 <- plotReducedDim(sce[,sce$experiment %in% "new"], 
-                     dimred="TSNE", 
-                     colour_by="Prox1") + ggtitle("new")
-
-wrap_plots(list(p1,p2), nrow = 1) + 
-  plot_layout(guides = "collect") &
-  theme(legend.position = "top")
-```
-
 ##### Pecam1
 
 ```{r}
